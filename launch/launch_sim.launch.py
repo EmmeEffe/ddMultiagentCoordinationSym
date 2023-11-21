@@ -14,11 +14,23 @@ from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
 
+import yaml
+
+def get_param(file_path, param_name):
+    with open(file_path, 'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
+        if 'ros__parameters' in data['/**'] and param_name in data['/**']['ros__parameters']:
+            return data['/**']['ros__parameters'][param_name]
+        else:
+            print("Error: '"+param_name+"' parameter not found in the YAML file.")
+            return None
 
 
 def generate_launch_description():
 
-    num_robots = 6 # TODO PARAMETER
+    file_path = "src/multi_robots/config/launch_config.yaml"
+
+    num_robots = get_param(file_path, 'num_robots')
 
     package_name='multi_robots' # package name
 

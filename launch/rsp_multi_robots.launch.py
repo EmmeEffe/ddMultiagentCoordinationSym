@@ -8,17 +8,26 @@ from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 
 import xacro
+import yaml
 
+def get_param(file_path, param_name):
+    with open(file_path, 'r') as yaml_file:
+        data = yaml.safe_load(yaml_file)
+        if 'ros__parameters' in data['/**'] and param_name in data['/**']['ros__parameters']:
+            return data['/**']['ros__parameters'][param_name]
+        else:
+            print("Error: '"+param_name+"' parameter not found in the YAML file.")
+            return None
 
 def generate_launch_description():
 
+    file_path = "src/multi_robots/config/launch_config.yaml" # Path of config file
 
-    dist = 1 # distance between each robot (m)
+    num_robots = get_param(file_path, 'num_robots')
+    dist = get_param(file_path, 'dist_between_robots') # distance between each robot (m)
 
     # Check if we're told to use sim time
     use_sim_time = LaunchConfiguration('use_sim_time')
-
-    num_robots = 6 # number of robot to spawn # TODO PARAMETER
 
     # Process the URDF file for the robot
     pkg_path = os.path.join(get_package_share_directory('multi_robots'))

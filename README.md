@@ -70,3 +70,5 @@ And if i list the topics:
 > /tf
 
 If you want to play around driving the robots you can do it using `ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/robot1/cmd_vel` and substituting to `robot1` the namespace of the robot that you want to move.
+
+If you want to spawn a different number of robots, or spawn them at different distance you just have to edit the [launch_config.yaml](./config/launch_config.yaml) file.
