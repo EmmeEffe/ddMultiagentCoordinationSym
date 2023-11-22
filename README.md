@@ -86,5 +86,5 @@ Here you can find the status of the function written associated to the formulas:
  - :no_entry: = Not Implemented
 
 | Number | Description | Name | Status |
-| -------- | ------- | ------- | ------ |
+| :--------: | :-------: | :-------: | :------: |
 | 1 | Weights of Graph | getWeighMatrix | :warning: |
