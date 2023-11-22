@@ -4,6 +4,7 @@ Multiagent Control System Simulator for Differential Drives robots
 Implementation in ROS2 of the results and symulations of the IEEE article [J. Hu, P. Bhowmick and A. Lanzon, "Group Coordinated Control of Networked Mobile Robots With Applications to Object Transportation," in IEEE Transactions on Vehicular Technology, vol. 70, no. 8, pp. 8269-8274, Aug. 2021, doi: 10.1109/TVT.2021.3093157.](https://ieeexplore.ieee.org/abstract/document/9468402)
 
 # First Steps
+## Robot Spawning
 First of all i have designed a differential drive robot similar to the one in the article, then i've written a launch file that spawns 6 identical robots with progressive namespaces.
 ![6 Robots in Gazebo](./img/gazebo_6_robots_spawn.jpg)
 You can launch the launchfile with the command:
@@ -72,3 +73,18 @@ And if i list the topics:
 If you want to play around driving the robots you can do it using `ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap cmd_vel:=/robot1/cmd_vel` and substituting to `robot1` the namespace of the robot that you want to move.
 
 If you want to spawn a different number of robots, or spawn them at different distance you just have to edit the [launch_config.yaml](./config/launch_config.yaml) file.
+
+## Functions
+The second step has been to write the functions needed to calculate matrices, arrays and all the other values that you can need in the program.
+
+You can find thoose under [src/utilities.h](./src/utilities.h)
+
+Here you can find the status of the function written associated to the formulas:
+
+ - :white_check_mark: = Implemented and tested
+ - :warning: = Implemented but not tested
+ - :no_entry: = Not Implemented
+
+| Number | Description | Name | Status |
+| -------- | ------- | ------- | ------ |
+| 1 | Weights of Graph | getWeighMatrix | :warning: |
