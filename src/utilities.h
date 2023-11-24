@@ -8,23 +8,30 @@
 
 using Eigen::MatrixXf;
 using Eigen::MatrixXd;
+using Eigen::MatrixXi;
 using Eigen::VectorXf;
 using Eigen::VectorXd;
+using Eigen::VectorXi;
 using Eigen::Vector3d;
+using Eigen::Vector2d;
 
 #define DEBUG
-
 
 /*
  * Return if an element is in vector
 */
 
-bool isInVector(VectorXd vect, int elem){
+bool isInVector(VectorXi vect, int elem){
     for(int i=0; i<vect.size(); i++){
         if(vect(i)==elem)
             return true;
     }
     return false;
+}
+
+bool isAdjacent(MatrixXi adjacency, int i, int j){
+    int val = adjacency(i,j);
+    return val>0;
 }
 
 /*
@@ -38,7 +45,7 @@ bool isInVector(VectorXd vect, int elem){
  * B has dimension N, A and adjacency have dimension NxN, Targets has dimension M and Followers has dimension N-M
 */
 
-MatrixXf getWeighMatrix(VectorXd Targets, VectorXd Followers, MatrixXd adjacency, VectorXf b_coeff, MatrixXf a_coeff){
+MatrixXf getWeighMatrix(VectorXi Targets, VectorXi Followers, MatrixXi adjacency, VectorXf b_coeff, MatrixXf a_coeff){
 
     // Verify dimension
     int N = Targets.size() + Followers.size();
@@ -64,11 +71,11 @@ MatrixXf getWeighMatrix(VectorXd Targets, VectorXd Followers, MatrixXd adjacency
                 weigths(i,j) = 0;
                 continue;
             }
-            if((isInVector(Targets, j))&&(adjacency(j,i==1))){  // If j Target and edge (j,i) then b_j
-                weigths(i,j) = b_coeff(j);
+            if((isInVector(Targets, j))&&(isAdjacent(adjacency,j,i))){  // If j Target and edge (j,i) then b_j
+                weigths(i,j) = (float)b_coeff(j);
                 continue;
             }
-            if((isInVector(Followers, i))&&(isInVector(Followers, j))&&(adjacency(j,i==1))){  // If i,j Followers and edge (j,i) then a_i_j
+            if((isInVector(Followers, i))&&(isInVector(Followers, j))&&(isAdjacent(adjacency,j,i))){  // If i,j Followers and edge (j,i) then a_i_j
                 weigths(i,j) = a_coeff(i,j);
             }
         }
@@ -95,4 +102,18 @@ Vector3d yVehicleVersor(float theta){ // Return the versor y in the reference sy
         std::cout<<"VersorY_vehicle: "<<versor<<" Angle theta: "<<theta;
     #endif
     return versor;
+}
+
+Vector2d velocityToUnicycle(Vector3d velocity, float l, double theta){ // Convert velocity of a point to unicycle inputs
+    Vector3d xVers = xVehicleVersor(theta);
+    Vector3d yVers = yVehicleVersor(theta);
+    double vel_uni = velocity.dot(xVers);
+    double theta_dot_uni = velocity.dot(yVers)/l;
+    Vector2d unicycle(vel_uni, theta_dot_uni);
+    return unicycle;
+}
+
+Vector2d velocityToUnicycle(double vel_x, double vel_y, float l, double theta){ // Convert velocity of a point to unicycle inputs
+    Vector3d velocity(vel_x, vel_y, 0);
+    return velocityToUnicycle(velocity, l, theta);
 }

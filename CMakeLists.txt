@@ -28,4 +28,16 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+find_package(rclcpp REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+
+add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp)
+ament_target_dependencies(accel_to_cmd_vel rclcpp nav_msgs geometry_msgs)
+
+install(TARGETS
+  accel_to_cmd_vel
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
