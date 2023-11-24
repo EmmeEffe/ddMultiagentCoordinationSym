@@ -2,13 +2,15 @@
  * Library containing all the utilities functions
 */
 
-#include<Eigen/Dense>
-#include<iostream>
+#include <Eigen/Dense>
+#include <iostream>
+#include <math.h>
 
 using Eigen::MatrixXf;
 using Eigen::MatrixXd;
 using Eigen::VectorXf;
 using Eigen::VectorXd;
+using Eigen::Vector3d;
 
 #define DEBUG
 
@@ -77,4 +79,20 @@ MatrixXf getWeighMatrix(VectorXd Targets, VectorXd Followers, MatrixXd adjacency
     #endif
 
     return weigths;
+}
+
+Vector3d xVehicleVersor(float theta){ // Return the versor x in the reference system of the vehicle
+    Vector3d versor(cos(theta), sin(theta), 0);
+    #ifdef DEBUG
+        std::cout<<"VersorX_vehicle: "<<versor<<" Angle theta: "<<theta;
+    #endif
+    return versor;
+}
+
+Vector3d yVehicleVersor(float theta){ // Return the versor y in the reference system of the vehicle
+    Vector3d versor((-1)*sin(theta), cos(theta), 0);
+    #ifdef DEBUG
+        std::cout<<"VersorY_vehicle: "<<versor<<" Angle theta: "<<theta;
+    #endif
+    return versor;
 }

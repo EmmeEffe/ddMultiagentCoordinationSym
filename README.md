@@ -88,3 +88,5 @@ Here you can find the status of the function written associated to the formulas:
 | Number | Description | Name | Status |
 | :--------: | :-------: | :-------: | :------: |
 | 1 | Weights of Graph | getWeighMatrix | :warning: |
+| - | Versor x of vehicle | xVehicleVersor | :warning: |
+| - | Versor y of vehicle | yVehicleVersor | :warning: |
