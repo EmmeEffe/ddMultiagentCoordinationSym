@@ -91,5 +91,6 @@ Here you can find the status of the function written associated to the formulas:
 | 1 | Weights of Graph | getWeighMatrix | :warning: |
 | - | Versor x of vehicle | xVehicleVersor | :warning: |
 | - | Versor y of vehicle | yVehicleVersor | :warning: |
+| - | Converts the velocity of the forward point to unicycle lagrangian coordinates | velocityToUnicycle | :warning: |
 | - | Transform a polar vector in a cartesian one | polarToCartesian | :white_check_mark: |
 | - | Get the position of the i'th robot in a circular formation | getRobotFormationPosition | :white_check_mark: |
