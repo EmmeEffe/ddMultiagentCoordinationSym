@@ -117,3 +117,13 @@ Vector2d velocityToUnicycle(double vel_x, double vel_y, float l, double theta){ 
     Vector3d velocity(vel_x, vel_y, 0);
     return velocityToUnicycle(velocity, l, theta);
 }
+
+Vector2d polarToCartesian(float len, double angle){  //converts polar to cartesian coordinate
+    Vector2d vect(len*cos(angle), len*sin(angle));
+    return vect;
+}
+
+Vector2d getRobotFormationPosition(Vector2d center, float radius, double start_angle, int i, int N){ // Return the coordinates of the i'th robot in the formation composed by N robots
+    Vector2d rotatedVector = polarToCartesian(radius, start_angle + i*(2*M_PI)/N); // Rotate in position
+    return rotatedVector + center; // translate
+}
