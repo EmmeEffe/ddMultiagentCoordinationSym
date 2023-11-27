@@ -84,11 +84,12 @@ Here you can find the status of the function written associated to the formulas:
  - :white_check_mark: = Implemented and tested
  - :warning: = Implemented but not tested
  - :no_entry: = Not Implemented
+ (testing has to be intended as a run with successfull result, not as a complete test)
 
 | Number | Description | Name | Status |
 | :--------: | :-------: | :-------: | :------: |
 | 1 | Weights of Graph | getWeighMatrix | :warning: |
 | - | Versor x of vehicle | xVehicleVersor | :warning: |
 | - | Versor y of vehicle | yVehicleVersor | :warning: |
-| - | Transform a polar vector in a cartesian one | polarToCartesian | :warning: |
-| - | Get the position of the i'th robot in a circular formation | getRobotFormationPosition | :warning: |
+| - | Transform a polar vector in a cartesian one | polarToCartesian | :white_check_mark: |
+| - | Get the position of the i'th robot in a circular formation | getRobotFormationPosition | :white_check_mark: |

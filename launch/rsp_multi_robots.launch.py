@@ -21,7 +21,7 @@ def get_param(file_path, param_name):
 
 def generate_launch_description():
 
-    file_path = "src/multi_robots/config/launch_config.yaml" # Path of config file
+    file_path = "src/multi_robots/config/config.yaml" # Path of config file
 
     num_robots = get_param(file_path, 'num_robots')
     dist = get_param(file_path, 'dist_between_robots') # distance between each robot (m)
@@ -42,13 +42,21 @@ def generate_launch_description():
     )
 
 
+    create_target = Node(
+            package='multi_robots',
+            executable='create_target_positions',
+            name='create_target_positions',
+            output='screen',
+            parameters=[file_path]
+        )
+
     LaunchDescriptionArray = [
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
             description='Use sim time if true'),
 
-        #rviz_pkg
+        create_target
     ]
 
 

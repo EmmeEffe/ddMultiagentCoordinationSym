@@ -2,6 +2,11 @@
  * Library containing all the utilities functions
 */
 
+#ifndef UTILITIES_H
+#define UTILITIES_H
+
+#pragma once
+
 #include <Eigen/Dense>
 #include <iostream>
 #include <math.h>
@@ -127,3 +132,8 @@ Vector2d getRobotFormationPosition(Vector2d center, float radius, double start_a
     Vector2d rotatedVector = polarToCartesian(radius, start_angle + i*(2*M_PI)/N); // Rotate in position
     return rotatedVector + center; // translate
 }
+Vector2d getRobotFormationPosition(double center_x, double center_y, float radius, double start_angle, int i, int N){ // OVERRIDE
+    return getRobotFormationPosition(Vector2d(center_x, center_y), radius, start_angle, i, N);
+}
+
+#endif

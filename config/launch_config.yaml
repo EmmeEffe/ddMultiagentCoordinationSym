@@ -1,4 +1,0 @@
-/**: # This will put all the parameters in every node
-  ros__parameters:
-    num_robots: 6 # Numbers of robots to be spawned
-    dist_between_robots: 0.8 # Distance in meters between robots

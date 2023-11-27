@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(multi_robots)
 
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -32,11 +33,19 @@ find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
-add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp)
+add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp src/utilities.h)
 ament_target_dependencies(accel_to_cmd_vel rclcpp nav_msgs geometry_msgs)
+
+
+add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
+add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
+target_link_libraries(create_target_positions targetPositionGenerator)
+
+ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs rosgraph_msgs)
 
 install(TARGETS
   accel_to_cmd_vel
+  create_target_positions
   DESTINATION lib/${PROJECT_NAME}
 )
 

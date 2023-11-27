@@ -1,0 +1,14 @@
+create_target_positions: 
+  ros__parameters:
+    center_x: 4.0
+    center_y: 4.0
+    start_angle: 0.0
+    radius: 1.5
+    
+/**: # This will put all the parameters in every node
+  ros__parameters:
+    num_robots: 6 # Numbers of robots to be spawned
+    dist_between_robots: 0.8 # Distance in meters between robots    
+    dist_l: 0.3 # Distance between p and p tilde
+    publish_period: 0.1 # Time Constant of the system
+

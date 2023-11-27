@@ -28,7 +28,7 @@ def get_param(file_path, param_name):
 
 def generate_launch_description():
 
-    file_path = "src/multi_robots/config/launch_config.yaml"
+    file_path = "src/multi_robots/config/config.yaml"
 
     num_robots = get_param(file_path, 'num_robots')
 
@@ -46,6 +46,7 @@ def generate_launch_description():
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
              )
+
 
     spawnEntityArray = [rsp, gazebo]
 

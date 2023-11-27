@@ -1,0 +1,6 @@
+create_target_positions: 
+  ros__parameters:
+    center_x: 4.0
+    center_y: 4.0
+    start_angle: 0.0
+    radius: 1.5
