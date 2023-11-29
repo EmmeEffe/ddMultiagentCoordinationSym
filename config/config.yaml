@@ -10,5 +10,5 @@ create_target_positions:
     num_robots: 6 # Numbers of robots to be spawned
     dist_between_robots: 0.8 # Distance in meters between robots    
     dist_l: 0.3 # Distance between p and p tilde
-    publish_period: 0.1 # Time Constant of the system
+    publish_rate: 0.1 # Frequency at which the system publish
 

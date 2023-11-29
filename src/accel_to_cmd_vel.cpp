@@ -4,6 +4,8 @@
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include "utilities.h"
 
+#define DEBUG
+
 class AccelToCmdVel : public rclcpp::Node {
 public:
   AccelToCmdVel() : Node("accel_to_cmd_vel") {
@@ -21,11 +23,14 @@ public:
 
     // Declare parameters
     this->declare_parameter("dist_l", 0.5); // dist_l is the distance between p_tilde and p
-    this->declare_parameter("publish_period", 0.1); // the frequency (period) in which data are published
 
-    // Get the proportional gain parameter
+    // Get the parameter
     this->get_parameter("dist_l", dist_l);
-    this->get_parameter("publish_period", tau);
+
+    oldsec = this->now().seconds(); // Initialize the time
+    #ifdef DEBUG
+    //RCLCPP_INFO(this->get_logger, ("Init time in sec: " + oldsec).c_str());
+    #endif
   }
 
 private:
@@ -43,6 +48,7 @@ private:
       double accel_y = msg->data[1];
 
       // Estimate velocity. It is calculate by integration between the current vel and the input acceleration, so it should not accumulate errors
+      double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
       double est_vel_x = linear_velocity_x + accel_x * tau;
       double est_vel_y = linear_velocity_y + accel_y * tau;
 
@@ -70,7 +76,7 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_publisher_;
 
   float dist_l; // Distance between p and p tilde
-  double tau;   // Sample Time of the system
+  double oldsec;
 };
 
 int main(int argc, char **argv) {
