@@ -36,7 +36,7 @@ public:
 private:
   void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     // Extract linear velocities from odometry message
-    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
+    // IMPORTANT!!! Velocities data (twist) are in vehicle reference frame
     linear_velocity_x = msg->twist.twist.linear.x;
     linear_velocity_y = msg->twist.twist.linear.y;
     theta_orientation = quaternionToTheta(msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
