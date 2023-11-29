@@ -94,3 +94,7 @@ Here you can find the status of the function written associated to the formulas:
 | - | Converts the velocity of the forward point to unicycle lagrangian coordinates | velocityToUnicycle | :warning: |
 | - | Transform a polar vector in a cartesian one | polarToCartesian | :white_check_mark: |
 | - | Get the position of the i'th robot in a circular formation | getRobotFormationPosition | :white_check_mark: |
+| - | Get the rotation matrix around z | zRotation | :white_check_mark: |
+| - | Get yaw (theta) angle from quaternion | quaternionToTheta | :white_check_mark: |
+| - | Convert v and theta_dot to point vel | unicycleToVelocity | :white_check_mark: |
+

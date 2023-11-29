@@ -11,7 +11,7 @@ public:
   AccelToCmdVel() : Node("accel_to_cmd_vel") {
     // Subscribe to the odometry topic
     odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "odom", 10, std::bind(&AccelToCmdVel::odomCallback, this, std::placeholders::_1)
+        "newpt_coordinates", 10, std::bind(&AccelToCmdVel::odomCallback, this, std::placeholders::_1)
         ); // Subscribe to odometer data
     
     input_subscription = this->create_subscription<std_msgs::msg::Float64MultiArray>(
@@ -36,9 +36,10 @@ public:
 private:
   void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
     // Extract linear velocities from odometry message
+    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
     linear_velocity_x = msg->twist.twist.linear.x;
     linear_velocity_y = msg->twist.twist.linear.y;
-    theta_orientation = msg->pose.pose.orientation.z;
+    theta_orientation = quaternionToTheta(msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
   }
 
   void inputCallback(const std_msgs::msg::Float64MultiArray::SharedPtr msg){

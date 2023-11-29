@@ -14,11 +14,13 @@
 using Eigen::MatrixXf;
 using Eigen::MatrixXd;
 using Eigen::MatrixXi;
+using Eigen::Matrix2d;
 using Eigen::VectorXf;
 using Eigen::VectorXd;
 using Eigen::VectorXi;
 using Eigen::Vector3d;
 using Eigen::Vector2d;
+using Eigen::Quaterniond;
 
 #define DEBUG
 
@@ -134,6 +136,24 @@ Vector2d getRobotFormationPosition(Vector2d center, float radius, double start_a
 }
 Vector2d getRobotFormationPosition(double center_x, double center_y, float radius, double start_angle, int i, int N){ // OVERRIDE
     return getRobotFormationPosition(Vector2d(center_x, center_y), radius, start_angle, i, N);
+}
+
+Matrix2d zRotation(double theta){ // Rotation Matrix around z
+    return Matrix2d{{cos(theta), (-1)*sin(theta)},{sin(theta), cos(theta)}};
+}
+
+Vector2d unicycleToVelocity(double v, double theta_p, double theta, float l){ // Convert unycicle coordinates to velocity of P tilde in fixed reference frame
+    Vector2d V_p_tilde_veic(v, l*theta_p);
+    return zRotation(theta)*V_p_tilde_veic;
+}
+
+double quaternionToTheta(Quaterniond q){
+    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
+}
+
+double quaternionToTheta(double x, double y, double z, double w){
+    Quaterniond q(w, x, y, z);
+    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
 }
 
 #endif
