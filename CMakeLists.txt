@@ -37,6 +37,10 @@ add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp src/utilities.h)
 ament_target_dependencies(accel_to_cmd_vel rclcpp nav_msgs geometry_msgs)
 
 
+add_executable(com_to_pt_odom src/com_to_pt_odom.cpp src/utilities.h)
+ament_target_dependencies(com_to_pt_odom rclcpp nav_msgs geometry_msgs)
+
+
 add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
 add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
 target_link_libraries(create_target_positions targetPositionGenerator)
@@ -46,7 +50,11 @@ ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs 
 install(TARGETS
   accel_to_cmd_vel
   create_target_positions
+  com_to_pt_odom
   DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
+
+# Uncomment this for debug
+#add_compile_options(-g)
