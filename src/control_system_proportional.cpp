@@ -15,7 +15,7 @@ struct xyObject{
 
 class ControlSystemProportional : public rclcpp::Node {
 public:
-  ControlSystemProportional() : Node("control_system_proprortional") {
+  ControlSystemProportional() : Node("control_system_proportional") {
 
     // Subscribe to the odometry topic
     odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
