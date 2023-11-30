@@ -7,12 +7,12 @@ create_target_positions:
 
 control_system_proportional:
   ros__parameters:
-    gain: 0.1 # Proportional gain
+    gain: 0.05 # Proportional gain
     
 /**: # This will put all the parameters in every node
   ros__parameters:
     num_robots: 6 # Numbers of robots to be spawned
-    dist_between_robots: 0.8 # Distance in meters between robots    
-    dist_l: 0.3 # Distance between p and p tilde
+    dist_between_robots: 1 # Distance in meters between robots    
+    dist_l: 0.24 # Distance between p and p tilde
     publish_rate: 0.1 # Frequency at which the system publish
 
