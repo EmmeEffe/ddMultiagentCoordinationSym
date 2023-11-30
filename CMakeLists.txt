@@ -52,6 +52,7 @@ install(TARGETS
   accel_to_cmd_vel
   create_target_positions
   com_to_pt_odom
+  control_system_proportional
   DESTINATION lib/${PROJECT_NAME}
 )
 

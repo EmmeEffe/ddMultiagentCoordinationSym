@@ -4,6 +4,10 @@ create_target_positions:
     center_y: 4.0
     start_angle: 0.0
     radius: 1.5
+
+control_system_proportional:
+  ros__parameters:
+    gain: 0.1 # Proportional gain
     
 /**: # This will put all the parameters in every node
   ros__parameters:
