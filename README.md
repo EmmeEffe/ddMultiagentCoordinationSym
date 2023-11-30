@@ -98,3 +98,25 @@ Here you can find the status of the function written associated to the formulas:
 | - | Get yaw (theta) angle from quaternion | quaternionToTheta | :white_check_mark: |
 | - | Convert v and theta_dot to point vel | unicycleToVelocity | :white_check_mark: |
 
+## Proportional Control
+I've implemented a simple proportional gain contro, just to verify that everything will work, and obviously, it doesn't.
+
+![plot](./img/plot_instable.png)
+The plot shows that the angular velocity of the robot get very high. I need to investigate further the reasons of why it happens.
+
+Just to see if i can stop the robot to rotate i implemented a different logic:
+
+ - If i'm far from the point let the acceleration be constant and in direction of the point
+ - If i'm closer than a threshold, let the acceleration be zero
+
+That changes didn't let to anything, so i decided to go further.
+
+I tried to give a constant value to cmd_acc equal to [0.0, 1.0] and see what happened.
+
+`ros2 topic pub /robot1/cmd_acc std_msgs/msg/Float64MultiArray "{data: [0.0, 1.0]}"`
+
+The effect was that the robot started to go in one direction, but it started to deviate in a random way. When i stopped giving that signal and gave [0.0, 0.0] instead, the robot continued moving.
+
+So the next step were 2:
+ - Add a static friction in the movements to eventually stop the robot
+ - Control again the accel_to_cmd_vel.cpp code

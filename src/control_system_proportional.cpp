@@ -1,5 +1,8 @@
 /*
- * Control the system with a proportional error loop in position
+ * Control the system with a proportional error loop 
+
+  - If i'm far from the point let the acceleration be constant and in direction of the point
+ - If i'm closer than a threshold, let the acceleration be zero
 */
 
 #include <rclcpp/rclcpp.hpp>
@@ -32,7 +35,7 @@ public:
     acc_publisher = this->create_publisher<std_msgs::msg::Float64MultiArray>("cmd_acc", 10); // Publish new point movement data
 
     // Declare parameters
-    this->declare_parameter("gain", 0.5); // Proportional gain
+    this->declare_parameter("gain", 0.01); // Proportional gain
 
     // Get the parameter
     this->get_parameter("gain", gain);
@@ -48,21 +51,27 @@ private:
     // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
     // IMPORTANT!!! pose.orientation is a quaternion
 
-    double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
+    //double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
 
-    xyObject errorVel;
-    errorVel.x = gain*(targetPos.x - msg->pose.pose.position.x);
-    errorVel.y = gain*(targetPos.y - msg->pose.pose.position.y);
+    xyObject errorPos;
+    errorPos.x = (targetPos.x - msg->pose.pose.position.x);
+    errorPos.y = (targetPos.y - msg->pose.pose.position.y);
 
-    // Now derive errorvel to get accel
-    // I Know that this method of doing derivatives can lead to high frequency noise in the signal, but i want to keep this node as simple as possible, as it serve just as a simple "check"
+    double theta = atan2(errorPos.y, errorPos.x);
 
+    float sqThresh = 0.3;
+    float const_acc = 0.02;
     std_msgs::msg::Float64MultiArray accel;
     accel.data.resize(2);
-    accel.data.at(0) = (errorVel.x-oldvel.x)/tau;
-    accel.data.at(1) = (errorVel.y-oldvel.y)/tau;
-    
-    oldvel = errorVel;
+
+    if(errorPos.x*errorPos.x + errorPos.y*errorPos.y<sqThresh){
+      accel.data.at(0) = 0;
+      accel.data.at(1) = 0;
+    }else{
+      accel.data.at(0) = const_acc * cos(theta);
+      accel.data.at(1) = const_acc * sin(theta);
+    }
+
 
     // Publish the message
     acc_publisher->publish(accel);
