@@ -50,16 +50,19 @@ private:
 
       // Estimate velocity. It is calculate by integration between the current vel and the input acceleration, so it should not accumulate errors
       double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
-      double est_vel_x = linear_velocity_x + accel_x * tau;
-      double est_vel_y = linear_velocity_y + accel_y * tau;
+      oldsec = this->now().seconds();
+      double est_vel_x = accel_x * tau;
+      double est_vel_y = accel_y * tau;
 
       // Remap Velocity of p tilde point to unicycle equivalent
-      Eigen::Vector2d unicycle = velocityToUnicycle(est_vel_x, est_vel_y, dist_l, theta_orientation);
+      Eigen::Vector2d unicycle_oldVel = velocityToUnicycle(linear_velocity_x, linear_velocity_y, dist_l, theta_orientation);
+      Eigen::Vector2d unicycle_acc = velocityToUnicycle(est_vel_x, est_vel_y, dist_l, theta_orientation);
+      Eigen::Vector2d unicycle = decay_rate * unicycle_oldVel + unicycle_acc;
 
       // Create and publish the control command on cmd_vel topic
       auto cmd_vel_msg = std::make_unique<geometry_msgs::msg::Twist>();
       cmd_vel_msg->linear.x = unicycle(0);
-      cmd_vel_msg->angular.z = unicycle(1);
+      cmd_vel_msg->angular.z = unicycle(1); // TODO Control if is in radians
       cmd_vel_publisher_->publish(std::move(cmd_vel_msg));
 
     } else {
@@ -71,6 +74,8 @@ private:
   double linear_velocity_x = 0;
   double linear_velocity_y = 0;
   double theta_orientation = 0;
+
+  float decay_rate = 0.6; 
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometry_subscription_;
   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr input_subscription;
