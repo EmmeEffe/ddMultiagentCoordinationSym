@@ -7,11 +7,18 @@
 
 #define DEBUG
 
+
+double clockToSeconds(rosgraph_msgs::msg::Clock::SharedPtr msg){ // Return the current time in seconds
+    double time = (double)msg->clock.sec;
+    time+=(double) msg->clock.nanosec * 1.0e-9;
+    return time;
+}
+
 class AccelToCmdVel : public rclcpp::Node {
 public:
   AccelToCmdVel() : Node("accel_to_cmd_vel") {
     // Subscribe to Clock topic
-    clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("clock", rclcpp::QoS(rclcpp::KeepLast(10)).best_effort(), std::bind(&AccelToCmdVel::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
+    clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("/clock", rclcpp::QoS(rclcpp::KeepLast(1)).best_effort(), std::bind(&AccelToCmdVel::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
 
 
     // Subscribe to the odometry topic
@@ -40,8 +47,8 @@ public:
 private:
   void timeTick(const rosgraph_msgs::msg::Clock::SharedPtr msg) {
       // Time ticked
-      double tau = (double)(msg->clock.nanosec - oldSec)/1000000.0; // Tau in seconds
-      oldSec = msg->clock.nanosec;
+      double tau = clockToSeconds(msg)-oldSec; // Tau in seconds
+      oldSec = clockToSeconds(msg);
 
       // Estimate velocity. It is calculate by integration between the current vel and the input acceleration, so it should not accumulate errors
       double est_vel_x = linear_velocity_x + accel_x * tau;
@@ -64,6 +71,12 @@ private:
     // IMPORTANT!!! Velocities data (twist) are usually in vehicle reference frame. In this case we don't read odom, but newpt_coordinates. That give us all the data in fixed frame
     linear_velocity_x = msg->twist.twist.linear.x;
     linear_velocity_y = msg->twist.twist.linear.y;
+
+    if(linear_velocity_x<deadzone)
+      linear_velocity_x = 0;
+    if(linear_velocity_y<deadzone)
+      linear_velocity_y = 0;
+    
     theta_orientation = quaternionToTheta(msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
   }
 
@@ -91,10 +104,11 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_publisher_;  
   
   rclcpp::Subscription<rosgraph_msgs::msg::Clock>::SharedPtr clock_subscription;
-  uint32_t oldSec = 0;
+  double oldSec = 0;
 
   // Parameters from file
   float dist_l; // Distance between p and p tilde
+  double deadzone = 0.05; // If speed is less than this, set to zero
 };
 
 int main(int argc, char **argv) {

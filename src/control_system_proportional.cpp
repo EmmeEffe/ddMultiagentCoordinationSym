@@ -17,11 +17,17 @@ struct xyObject{
   double y = 0;
 };
 
+double clockToSeconds(rosgraph_msgs::msg::Clock::SharedPtr msg){ // Return the current time in seconds
+    double time = (double)msg->clock.sec;
+    time+=(double) msg->clock.nanosec * 1.0e-9;
+    return time;
+}
+
 class ControlSystemProportional : public rclcpp::Node {
 public:
   ControlSystemProportional() : Node("control_system_proportional") {    
     // Subscribe to Clock topic
-    clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("clock", rclcpp::QoS(rclcpp::KeepLast(10)).best_effort(), std::bind(&ControlSystemProportional::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
+    clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("/clock", rclcpp::QoS(rclcpp::KeepLast(10)).best_effort(), std::bind(&ControlSystemProportional::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
 
     // Subscribe to the odometry topic
     odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
@@ -38,12 +44,16 @@ public:
     acc_publisher = this->create_publisher<std_msgs::msg::Float64MultiArray>("cmd_acc", 10); // Publish new point movement data
 
     // Declare parameters
-    this->declare_parameter("vel_gain", 1); // Proportional gain
-    this->declare_parameter("acc_gain", 1); // Proportional gain
+    this->declare_parameter("vel_gain", 0.1); // Proportional gain
+    this->declare_parameter("acc_gain", 1.0); // Proportional gain
+    this->declare_parameter("max_vel", 5.0); // Maximum Velocity
+    this->declare_parameter("max_acc", 10.0); // Maximum Acceleration
 
     // Get the parameter
     this->get_parameter("vel_gain", vel_gain);
     this->get_parameter("acc_gain", acc_gain);
+    this->get_parameter("max_vel", max_vel);
+    this->get_parameter("max_acc", max_acc);
 
     oldsec = this->now().seconds(); // Initialize the time
     #ifdef DEBUG
@@ -54,25 +64,28 @@ public:
 private:
   void timeTick(const rosgraph_msgs::msg::Clock::SharedPtr msg) {
     // Time ticked
-    double tau = (double)(msg->clock.nanosec - oldSec)/1000000.0; // Tau in seconds
-    oldSec = msg->clock.nanosec;
+    //double tau = clockToSeconds(msg)-oldSec; // Tau in seconds
+    oldSec = clockToSeconds(msg);
+
+    if(oldSec<=5)
+      return; // Inizia il controllo dopo 5 secondi
 
     xyObject errorPos, desiredVel, errorVel;
     errorPos.x = (targetPos.x - currentPos.x);
     errorPos.y = (targetPos.y - currentPos.y);
 
-    desiredVel.x = vel_gain * errorPos.x;
-    desiredVel.y = vel_gain * errorPos.y;
+    desiredVel.x = std::min(vel_gain * errorPos.x, (double) max_vel);
+    desiredVel.y = std::min(vel_gain * errorPos.y, (double) max_vel);
 
     errorVel.x = desiredVel.x - vel.x;
     errorVel.y = desiredVel.y - vel.y;
 
-    double theta = atan2(errorPos.y, errorPos.x);
+    //double theta = atan2(errorPos.y, errorPos.x);
 
     std_msgs::msg::Float64MultiArray accel;
     accel.data.resize(2);
-    accel.data.at(0) = acc_gain * errorVel.x;
-    accel.data.at(1) = acc_gain * errorVel.y;
+    accel.data.at(0) = std::min(acc_gain * errorVel.x, (double) max_acc);
+    accel.data.at(1) = std::min(acc_gain * errorVel.y, (double) max_acc);
     
     // Publish the message
     acc_publisher->publish(accel);
@@ -96,13 +109,13 @@ private:
   }
 
   rclcpp::Subscription<rosgraph_msgs::msg::Clock>::SharedPtr clock_subscription;
-  uint32_t oldSec = 0;
+  double oldSec = 0;
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odometry_subscription_;
   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr target_pos_subscription;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr acc_publisher;
 
-  float vel_gain, acc_gain; 
+  float vel_gain, acc_gain, max_vel, max_acc; 
   double oldsec;
   xyObject targetPos, vel, currentPos;
 };

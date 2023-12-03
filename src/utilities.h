@@ -148,12 +148,18 @@ Vector2d unicycleToVelocity(double v, double theta_p, double theta, float l){ //
 }
 
 double quaternionToTheta(Quaterniond q){
-    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
+    //return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
+    // Using Euler Angle returns the correct module but inverted sign sometimes. I think it is due to some rotation on roll/pitch close to PI
+    // I consider that quaternion axis is close to z axis and i get the formula as:
+    return 2*acos(q.w())*((q.z() > 0) - (q.z() < 0)); // 2*acos(w) * sign(z)
+
 }
 
 double quaternionToTheta(double x, double y, double z, double w){
     Quaterniond q(w, x, y, z);
-    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
+    return quaternionToTheta(q);
 }
+
+
 
 #endif
