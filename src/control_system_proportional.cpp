@@ -55,6 +55,14 @@ public:
     this->get_parameter("max_vel", max_vel);
     this->get_parameter("max_acc", max_acc);
 
+
+    // Debug prints
+    RCLCPP_INFO(this->get_logger(), "Loaded parameters:");
+    RCLCPP_INFO(this->get_logger(), "Vel Gain: %f", vel_gain);
+    RCLCPP_INFO(this->get_logger(), "Acc gain: %f", acc_gain);
+    RCLCPP_INFO(this->get_logger(), "Max Vel: %f", max_vel);
+    RCLCPP_INFO(this->get_logger(), "Max Acc: %f", max_acc);
+
     oldsec = this->now().seconds(); // Initialize the time
     #ifdef DEBUG
     //RCLCPP_INFO(this->get_logger, ("Init time in sec: " + oldsec).c_str());
