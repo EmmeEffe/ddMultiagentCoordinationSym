@@ -86,8 +86,8 @@ private:
 
       // Create and publish the control command on cmd_vel topic
       auto cmd_vel_msg = std::make_unique<geometry_msgs::msg::Twist>();
-      cmd_vel_msg->linear.x = saturate(unicycle_cmd(0), 3);
-      cmd_vel_msg->angular.z = saturate(unicycle_cmd(1), 2); // TODO Control if is in radians/s
+      cmd_vel_msg->linear.x = unicycle_cmd(0); // saturate(unicycle_cmd(0), 3);
+      cmd_vel_msg->angular.z = unicycle_cmd(1); // saturate(unicycle_cmd(1), 2); // TODO Control if is in radians/s
 
       // Publish the command
       cmd_vel_publisher_->publish(std::move(cmd_vel_msg));
