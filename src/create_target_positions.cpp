@@ -59,7 +59,7 @@ public:
 
 private:
   void timeTick(const rosgraph_msgs::msg::Clock::SharedPtr msg) {
-      if(msg->clock.sec!=oldSec){ // Tick every second
+      if(1/*msg->clock.sec!=oldSec*/){ // Tick every second
         oldSec = msg->clock.sec;
         std::vector<Vector2d> Points = targetGen->getFormation(oldSec);
         auto pos_msg = std_msgs::msg::Float64MultiArray();

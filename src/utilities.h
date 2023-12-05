@@ -147,13 +147,27 @@ Vector2d unicycleToVelocity(double v, double theta_p, double theta, float l){ //
     return zRotation(theta)*V_p_tilde_veic;
 }
 
-double quaternionToTheta(Quaterniond q){
-    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
-}
 
 double quaternionToTheta(double x, double y, double z, double w){
-    Quaterniond q(w, x, y, z);
-    return q.toRotationMatrix().eulerAngles(0, 1, 2)(2); // return yaw angle, a.k.a. theta
+    x=x+y;
+    float yaw = 2.0 * atan2(z,w);
+    return yaw;
+
+    //Quaterniond q(w, x, y, z);
+    //return quaternionToTheta(q);
 }
+
+void normBetween(double &x, double &y, double max){ // saturate between max and -max (in norm)
+    if(x*x + y*y > max){
+        float norm = sqrt(x*x +y*y);
+        x/=norm;
+        y/=norm;
+    }
+}
+
+double saturate(double val, double sat){
+    return std::max(-sat, std::min(val, sat));
+}
+
 
 #endif

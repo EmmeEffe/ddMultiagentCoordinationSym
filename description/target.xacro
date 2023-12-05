@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot">
+
+    <xacro:include filename="inertial_macros.xacro"/>
+
+    <!-- BASE LINK -->
+
+    <link name="base_link">
+    
+    </link>
+
+    <joint name="unique_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="circle"/>
+        <origin xyz="0 1 0"/>
+    </joint>
+
+    <link name="circle">
+        <visual>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.5" length="0.001"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.5" length="0.001"/>
+            </geometry>
+        </collision>
+        <xacro:inertial_cylinder mass="1" radius="0.5" length="0.001">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    <gazebo reference="circle">
+        <material>
+            Gazebo/Yellow
+        </material>
+    </gazebo>
+</robot>
