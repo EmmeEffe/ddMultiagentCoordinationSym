@@ -31,11 +31,11 @@ public:
 
     // Subscribe to the odometry topic
     odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "newpt_coordinates", 10, std::bind(&ControlSystemProportional::odomCallback, this, std::placeholders::_1)
+        "newpt_coordinates", 1, std::bind(&ControlSystemProportional::odomCallback, this, std::placeholders::_1)
         ); // Subscribe to odometer data
 
     target_pos_subscription = this->create_subscription<std_msgs::msg::Float64MultiArray>(
-        "target_pos", 10, std::bind(&ControlSystemProportional::targetCallback, this, std::placeholders::_1)
+        "target_pos", 1, std::bind(&ControlSystemProportional::targetCallback, this, std::placeholders::_1)
         ); // Subscribe to odometer data
 
 
@@ -44,10 +44,10 @@ public:
     acc_publisher = this->create_publisher<std_msgs::msg::Float64MultiArray>("cmd_acc", 10); // Publish new point movement data
 
     // Declare parameters
-    this->declare_parameter("vel_gain", 0.1); // Proportional gain
-    this->declare_parameter("acc_gain", 1.0); // Proportional gain
-    this->declare_parameter("max_vel", 5.0); // Maximum Velocity
-    this->declare_parameter("max_acc", 10.0); // Maximum Acceleration
+    this->declare_parameter("vel_gain", 0.5); // Proportional gain
+    this->declare_parameter("acc_gain", 0.3); // Proportional gain
+    this->declare_parameter("max_vel", 2.0); // Maximum Velocity
+    this->declare_parameter("max_acc", 2.0); // Maximum Acceleration
 
     // Get the parameter
     this->get_parameter("vel_gain", vel_gain);
@@ -67,15 +67,19 @@ private:
     //double tau = clockToSeconds(msg)-oldSec; // Tau in seconds
     oldSec = clockToSeconds(msg);
 
-    if(oldSec<=5)
-      return; // Inizia il controllo dopo 5 secondi
-
     xyObject errorPos, desiredVel, errorVel;
     errorPos.x = (targetPos.x - currentPos.x);
     errorPos.y = (targetPos.y - currentPos.y);
 
-    desiredVel.x = std::min(vel_gain * errorPos.x, (double) max_vel);
-    desiredVel.y = std::min(vel_gain * errorPos.y, (double) max_vel);
+    if(oldSec<=5){// Inizia il controllo dopo 5 secondi
+      errorPos.x = (0 - currentPos.x);
+      errorPos.y = (0 - currentPos.y);
+    }
+
+    desiredVel.x = vel_gain * errorPos.x;
+    desiredVel.y = vel_gain * errorPos.y;
+    normBetween(desiredVel.x, desiredVel.y, max_vel);
+
 
     errorVel.x = desiredVel.x - vel.x;
     errorVel.y = desiredVel.y - vel.y;
@@ -84,9 +88,11 @@ private:
 
     std_msgs::msg::Float64MultiArray accel;
     accel.data.resize(2);
-    accel.data.at(0) = std::min(acc_gain * errorVel.x, (double) max_acc);
-    accel.data.at(1) = std::min(acc_gain * errorVel.y, (double) max_acc);
+    accel.data.at(0) = acc_gain * errorVel.x;
+    accel.data.at(1) = acc_gain * errorVel.y;
     
+    normBetween(accel.data.at(0), accel.data.at(1), max_acc);
+
     // Publish the message
     acc_publisher->publish(accel);
   }

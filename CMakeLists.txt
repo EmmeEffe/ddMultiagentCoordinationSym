@@ -42,6 +42,9 @@ ament_target_dependencies(com_to_pt_odom rclcpp nav_msgs geometry_msgs)
 add_executable(control_system_proportional src/control_system_proportional.cpp src/utilities.h)
 ament_target_dependencies(control_system_proportional rclcpp nav_msgs geometry_msgs)
 
+add_executable(step_accel src/step_accel.cpp src/utilities.h)
+ament_target_dependencies(step_accel rclcpp geometry_msgs)
+
 add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
 add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
 target_link_libraries(create_target_positions targetPositionGenerator)
@@ -53,6 +56,7 @@ install(TARGETS
   create_target_positions
   com_to_pt_odom
   control_system_proportional
+  step_accel
   DESTINATION lib/${PROJECT_NAME}
 )
 
