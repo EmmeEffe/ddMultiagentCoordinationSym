@@ -158,7 +158,7 @@ double quaternionToTheta(double x, double y, double z, double w){
 }
 
 void normBetween(double &x, double &y, double max){ // saturate between max and -max (in norm)
-    if(x*x + y*y > max){
+    if(x*x + y*y > max*max){
         float norm = sqrt(x*x +y*y);
         x/=norm;
         y/=norm;
