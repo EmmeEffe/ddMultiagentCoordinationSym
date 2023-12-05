@@ -26,11 +26,12 @@ def get_param(file_path, param_name):
 
 def generate_launch_description():
 
+    package_name='multi_robots' # package name
+
     file_path = "src/multi_robots/config/config.yaml"
 
     num_robots = get_param(file_path, 'num_robots')
 
-    package_name='multi_robots' # package name
 
     # Create the robots
     rsp = IncludeLaunchDescription( 
@@ -42,10 +43,8 @@ def generate_launch_description():
     # Include the Gazebo launch file, provided by the gazebo_ros package
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]), launch_arguments={'use_sim_time': 'true', "param-file" : file_path}.items()
+                    get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]), launch_arguments={'use_sim_time': 'true'}.items()
              )
-
-
 
     spawnEntityArray = [rsp, gazebo]
 
@@ -55,12 +54,23 @@ def generate_launch_description():
             executable='create_target_positions',
             parameters=[file_path]))
 
+    '''spawnEntityArray.append(Node(
+            package=package_name,
+            executable='step_accel',
+            parameters=[file_path]))'''
+
     # Spawn Every Robot
     for i in range(num_robots):
-        spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py',
+        spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py', # Spawn robots
                             arguments=['-topic', 'robot'+str(i+1)+'/robot_description',
                                     '-entity', 'my_robot'+str(i+1)],
                             output='screen'))
+
+        spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py', # Spawn Targets
+                            arguments=['-topic', 'target'+str(i+1)+'/robot_description',
+                                    '-entity', 'target'+str(i+1)],
+                            output='screen'))
+
 
         # Append the com to pt node
         spawnEntityArray.append(Node(
@@ -77,7 +87,7 @@ def generate_launch_description():
             executable='accel_to_cmd_vel',
             namespace='robot'+str(i+1),
             parameters=[file_path],
-            remappings=[('/cmd_acc', 'cmd_acc'), ('/cmd_vel', 'cmd_vel'), ('/newpt_coordinates', 'newpt_coordinates')]
+            remappings=[('/cmd_acc', 'cmd_acc'), ('/cmd_vel', 'cmd_vel'), ('/newpt_coordinates', 'newpt_coordinates'), ('/theta_orientation', 'theta_orientation')]
         ))
 
 

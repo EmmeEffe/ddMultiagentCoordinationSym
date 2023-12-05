@@ -32,6 +32,7 @@ def generate_launch_description():
     # Process the URDF file for the robot
     pkg_path = os.path.join(get_package_share_directory('multi_robots'))
     xacro_file = os.path.join(pkg_path, 'description', 'robot.urdf.xacro')
+    xacro_targets_file = os.path.join(pkg_path, 'description', 'target.xacro')
 
 
     # Add Rviz to packages to launch
@@ -59,8 +60,7 @@ def generate_launch_description():
         create_target
     ]
 
-
-    for i in range(num_robots):
+    for i in range(num_robots): # Create Robots
         robot_description_config = xacro.process_file(xacro_file, mappings={"x_pos": str(dist*i), "namespace": "robot"+str(i+1)}).toxml()
         params_robot = {'robot_description': robot_description_config, 'use_sim_time': use_sim_time}
         app_node = Node(
@@ -69,6 +69,19 @@ def generate_launch_description():
             output='screen',
             namespace='robot'+str(i+1),
             parameters=[params_robot],
+            remappings=[('/tf', 'tf'), ('/tf_static', 'tf_static')]
+        )
+        LaunchDescriptionArray.append(app_node)
+
+    for i in range(num_robots): # Create Targets
+        target_description_config = xacro.process_file(xacro_targets_file, mappings={"namespace": "target"+str(i+1)}).toxml()
+        params_target = {'robot_description': target_description_config, 'use_sim_time': use_sim_time}
+        app_node = Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            output='screen',
+            namespace='target'+str(i+1),
+            parameters=[params_target],
             remappings=[('/tf', 'tf'), ('/tf_static', 'tf_static')]
         )
         LaunchDescriptionArray.append(app_node)
