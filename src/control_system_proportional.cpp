@@ -63,9 +63,25 @@ public:
 
 private:
   void timeTick(const rosgraph_msgs::msg::Clock::SharedPtr msg) {
+    oldSec = clockToSeconds(msg);
+  }
+
+  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
+    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
+    // IMPORTANT!!! pose.orientation is a quaternion
+
+    //double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
+    currentPos.x = msg->pose.pose.position.x;
+    currentPos.y = msg->pose.pose.position.y;
+    
+    vel.x = msg->twist.twist.linear.x;
+    vel.y = msg->twist.twist.linear.y;
+
+
+    // TRY TO EXECUTE IT AT 100HZ
     // Time ticked
     //double tau = clockToSeconds(msg)-oldSec; // Tau in seconds
-    oldSec = clockToSeconds(msg);
+    //oldSec = clockToSeconds(msg);
 
     xyObject errorPos, desiredVel, errorVel;
     errorPos.x = (targetPos.x - currentPos.x);
@@ -95,18 +111,6 @@ private:
 
     // Publish the message
     acc_publisher->publish(accel);
-  }
-
-  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
-    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
-    // IMPORTANT!!! pose.orientation is a quaternion
-
-    //double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
-    currentPos.x = msg->pose.pose.position.x;
-    currentPos.y = msg->pose.pose.position.y;
-    
-    vel.x = msg->twist.twist.linear.x;
-    vel.y = msg->twist.twist.linear.y;
   }
 
   void targetCallback(const std_msgs::msg::Float64MultiArray msg){ // Update Target Position

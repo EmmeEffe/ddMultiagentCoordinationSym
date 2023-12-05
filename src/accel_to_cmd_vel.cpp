@@ -112,7 +112,7 @@ private:
   
   rclcpp::Subscription<rosgraph_msgs::msg::Clock>::SharedPtr clock_subscription;
   double oldSec = 0;
-  double tau = 0.1;
+  double tau = 0.01;
 
   // Parameters from file
   float dist_l; // Distance between p and p tilde

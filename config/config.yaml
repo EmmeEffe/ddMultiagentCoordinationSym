@@ -17,5 +17,5 @@ control_system_proportional:
     num_robots: 1 # Numbers of robots to be spawned
     dist_between_robots: 1 # Distance in meters between robots    
     dist_l: 0.24 # Distance between p and p tilde
-    publish_rate: 0.1 # Frequency at which the system publish
+    publish_rate: 0.01 # Frequency at which the system publish
 
