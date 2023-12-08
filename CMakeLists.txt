@@ -52,6 +52,12 @@ target_link_libraries(point_mass_dynamics secondOrderDynamics)
 ament_target_dependencies(point_mass_dynamics rclcpp nav_msgs std_msgs)
 ament_target_dependencies(secondOrderDynamics rclcpp nav_msgs std_msgs)
 
+add_executable(tracking_control src/tracking_control.cpp src/utilities.h)
+add_library(TrackingControl SHARED src/TrackingControl.cpp src/TrackingControl.h)
+target_link_libraries(tracking_control TrackingControl)
+ament_target_dependencies(tracking_control rclcpp nav_msgs std_msgs)
+ament_target_dependencies(TrackingControl rclcpp nav_msgs geometry_msgs std_msgs)
+
 add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
 add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
 target_link_libraries(create_target_positions targetPositionGenerator)

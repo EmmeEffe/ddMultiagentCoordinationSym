@@ -21,7 +21,8 @@ public:
 
     // Subscribe also to target_pos
 
-    odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("pointState", 10); // Publish new point movement data
+    odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("point_nav_state", 10); // Publish new point movement data
+
 
     // Declare parameters
     this->declare_parameter("publish_rate", 0.01); 
