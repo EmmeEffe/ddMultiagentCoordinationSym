@@ -114,15 +114,22 @@ Vector3d yVehicleVersor(float theta){ // Return the versor y in the reference sy
 Vector2d velocityToUnicycle(Vector3d velocity, float l, double theta){ // Convert velocity of a point to unicycle inputs
     Vector3d xVers = xVehicleVersor(theta);
     Vector3d yVers = yVehicleVersor(theta);
-    double vel_uni = velocity.dot(xVers);
-    double theta_dot_uni = velocity.dot(yVers)/l;
+    double vel_uni = velocity.dot(xVers); //OK
+    double theta_dot_uni = (double)velocity.dot(yVers)/l; //OK
     Vector2d unicycle(vel_uni, theta_dot_uni);
     return unicycle;
 }
 
-Vector2d velocityToUnicycle(double vel_x, double vel_y, float l, double theta){ // Convert velocity of a point to unicycle inputs
+/*Vector2d velocityToUnicycle(double vel_x, double vel_y, float l, double theta){ // Convert velocity of a point to unicycle inputs
     Vector3d velocity(vel_x, vel_y, 0);
     return velocityToUnicycle(velocity, l, theta);
+}*/
+
+Vector2d velocityToUnicycle(double vel_x, double vel_y, float l, double theta){ // Convert velocity of a point to unicycle inputs
+    Vector2d uni;
+    uni(0) = vel_x * cos(theta) + vel_y * sin(theta);
+    uni(1) = (double) 1/l * (vel_y*cos(theta)-vel_x*sin(theta));
+    return uni;
 }
 
 Vector2d polarToCartesian(float len, double angle){  //converts polar to cartesian coordinate
@@ -143,7 +150,7 @@ Matrix2d zRotation(double theta){ // Rotation Matrix around z
 }
 
 Vector2d unicycleToVelocity(double v, double theta_p, double theta, float l){ // Convert unycicle coordinates to velocity of P tilde in fixed reference frame
-    Vector2d V_p_tilde_veic(v, l*theta_p);
+    Vector2d V_p_tilde_veic(v, (double)l*theta_p);
     return zRotation(theta)*V_p_tilde_veic;
 }
 
