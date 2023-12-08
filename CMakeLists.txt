@@ -32,6 +32,7 @@ install(
 find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp src/utilities.h)
 ament_target_dependencies(accel_to_cmd_vel rclcpp nav_msgs geometry_msgs)
@@ -45,10 +46,15 @@ ament_target_dependencies(control_system_proportional rclcpp nav_msgs geometry_m
 add_executable(step_accel src/step_accel.cpp src/utilities.h)
 ament_target_dependencies(step_accel rclcpp geometry_msgs)
 
+add_executable(point_mass_dynamics src/point_mass_dynamics.cpp src/utilities.h)
+add_library(secondOrderDynamics SHARED src/secondOrderDynamics.cpp src/secondOrderDynamics.h)
+target_link_libraries(point_mass_dynamics secondOrderDynamics)
+ament_target_dependencies(point_mass_dynamics rclcpp nav_msgs std_msgs)
+ament_target_dependencies(secondOrderDynamics rclcpp nav_msgs std_msgs)
+
 add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
 add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
 target_link_libraries(create_target_positions targetPositionGenerator)
-
 ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs rosgraph_msgs)
 
 install(TARGETS
@@ -57,6 +63,7 @@ install(TARGETS
   com_to_pt_odom
   control_system_proportional
   step_accel
+  point_mass_dynamics
   DESTINATION lib/${PROJECT_NAME}
 )
 
