@@ -10,6 +10,7 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
+#include <timer.hpp>
 #include "utilities.h"
 
 struct xyObject{
@@ -25,18 +26,19 @@ double clockToSeconds(rosgraph_msgs::msg::Clock::SharedPtr msg){ // Return the c
 
 class ControlSystemProportional : public rclcpp::Node {
 public:
-  ControlSystemProportional() : Node("control_system_proportional") {    
+  ControlSystemProportional() : Node("control_system_proportional") {
     // Subscribe to Clock topic
     clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("/clock", rclcpp::QoS(rclcpp::KeepLast(10)).best_effort(), std::bind(&ControlSystemProportional::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
 
     // Subscribe to the odometry topic
     odometry_subscription_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "newpt_coordinates", 1, std::bind(&ControlSystemProportional::odomCallback, this, std::placeholders::_1)
+        "point_nav_state", 1, std::bind(&ControlSystemProportional::odomCallback, this, std::placeholders::_1)
         ); // Subscribe to odometer data
 
     target_pos_subscription = this->create_subscription<std_msgs::msg::Float64MultiArray>(
         "target_pos", 1, std::bind(&ControlSystemProportional::targetCallback, this, std::placeholders::_1)
         ); // Subscribe to odometer data
+
 
 
     // Subscribe also to target_pos
@@ -48,12 +50,14 @@ public:
     this->declare_parameter("acc_gain", 0.3); // Proportional gain
     this->declare_parameter("max_vel", 2.0); // Maximum Velocity
     this->declare_parameter("max_acc", 2.0); // Maximum Acceleration
+    this->declare_parameter("publish_rate", 0.01); // Maximum Acceleration
 
     // Get the parameter
     this->get_parameter("vel_gain", vel_gain);
     this->get_parameter("acc_gain", acc_gain);
     this->get_parameter("max_vel", max_vel);
     this->get_parameter("max_acc", max_acc);
+    this->get_parameter("publish_rate", publish_rate);
 
 
     // Debug prints
@@ -62,6 +66,9 @@ public:
     RCLCPP_INFO(this->get_logger(), "Acc gain: %f", acc_gain);
     RCLCPP_INFO(this->get_logger(), "Max Vel: %f", max_vel);
     RCLCPP_INFO(this->get_logger(), "Max Acc: %f", max_acc);
+
+    int int_publish_rate = (int) 1000 * publish_rate;
+    timer_ = create_wall_timer(std::chrono::milliseconds(int_publish_rate), std::bind(&ControlSystemProportional::timerCallback, this));
 
     oldsec = this->now().seconds(); // Initialize the time
     #ifdef DEBUG
@@ -74,23 +81,7 @@ private:
     oldSec = clockToSeconds(msg);
   }
 
-  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
-    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
-    // IMPORTANT!!! pose.orientation is a quaternion
-
-    //double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
-    currentPos.x = msg->pose.pose.position.x;
-    currentPos.y = msg->pose.pose.position.y;
-    
-    vel.x = msg->twist.twist.linear.x;
-    vel.y = msg->twist.twist.linear.y;
-
-
-    // TRY TO EXECUTE IT AT 100HZ
-    // Time ticked
-    //double tau = clockToSeconds(msg)-oldSec; // Tau in seconds
-    //oldSec = clockToSeconds(msg);
-
+  void timerCallback(){ // Executed at sys frequency
     xyObject errorPos, desiredVel, errorVel;
     errorPos.x = (targetPos.x - currentPos.x);
     errorPos.y = (targetPos.y - currentPos.y);
@@ -114,11 +105,23 @@ private:
     accel.data.resize(2);
     accel.data.at(0) = acc_gain * errorVel.x;
     accel.data.at(1) = acc_gain * errorVel.y;
-    
+
     normBetween(accel.data.at(0), accel.data.at(1), max_acc);
 
     // Publish the message
     acc_publisher->publish(accel);
+  }
+
+  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
+    // IMPORTANT!!! Velocities data (twist) are in veichle reference frame
+    // IMPORTANT!!! pose.orientation is a quaternion
+
+    //double tau = this->now().seconds() - oldsec; // Calculate time step (timestep may vary a bit)
+    currentPos.x = msg->pose.pose.position.x;
+    currentPos.y = msg->pose.pose.position.y;
+
+    vel.x = msg->twist.twist.linear.x;
+    vel.y = msg->twist.twist.linear.y;
   }
 
   void targetCallback(const std_msgs::msg::Float64MultiArray msg){ // Update Target Position
@@ -133,8 +136,10 @@ private:
   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr target_pos_subscription;
   rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr acc_publisher;
 
-  float vel_gain, acc_gain, max_vel, max_acc; 
-  double oldsec;
+  rclcpp::TimerBase::SharedPtr timer_;
+
+  float vel_gain, acc_gain, max_vel, max_acc;
+  double oldsec, publish_rate;
   xyObject targetPos, vel, currentPos;
 };
 
