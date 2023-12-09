@@ -34,7 +34,7 @@ def generate_launch_description():
 
 
     # Create the robots
-    rsp = IncludeLaunchDescription( 
+    rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','rsp_multi_robots.launch.py'
                 )]), launch_arguments={'use_sim_time': 'true'}.items()
@@ -54,11 +54,6 @@ def generate_launch_description():
             executable='create_target_positions',
             parameters=[file_path]))
 
-    '''spawnEntityArray.append(Node(
-            package=package_name,
-            executable='step_accel',
-            parameters=[file_path]))'''
-
     # Spawn Every Robot
     for i in range(num_robots):
         spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py', # Spawn robots
@@ -73,31 +68,45 @@ def generate_launch_description():
 
 
         # Append the com to pt node
-        spawnEntityArray.append(Node(
+        '''spawnEntityArray.append(Node(
             package=package_name,
             executable='com_to_pt_odom',
             namespace='robot'+str(i+1),
             parameters=[file_path],
             remappings=[('/odom', 'odom'), ('/newpt_coordinates', 'newpt_coordinates')]
-        ))
+        ))'''
 
         # Append the accel to cmd vel node
-        spawnEntityArray.append(Node(
+        '''spawnEntityArray.append(Node(
             package=package_name,
             executable='accel_to_cmd_vel',
             namespace='robot'+str(i+1),
             parameters=[file_path],
             remappings=[('/cmd_acc', 'cmd_acc'), ('/cmd_vel', 'cmd_vel'), ('/newpt_coordinates', 'newpt_coordinates'), ('/theta_orientation', 'theta_orientation')]
+        ))'''
+
+        spawnEntityArray.append(Node(
+            package=package_name,
+            executable='point_mass_dynamics',
+            namespace='robot'+str(i+1),
+            parameters=[file_path],
+            remappings=[('/cmd_acc', 'cmd_acc'), ('/point_nav_state', 'point_nav_state')]
         ))
 
-
-        # Append the accel to cmd vel node
         spawnEntityArray.append(Node(
             package=package_name,
             executable='control_system_proportional',
             namespace='robot'+str(i+1),
             parameters=[file_path],
-            remappings=[('/cmd_acc', 'cmd_acc'), ('/newpt_coordinates', 'newpt_coordinates'), ('/target_pos', 'target_pos')]
+            remappings=[('/cmd_acc', 'cmd_acc'), ('/point_nav_state', 'point_nav_state'), ('/target_pos', 'target_pos')]
+        ))
+
+        spawnEntityArray.append(Node(
+            package=package_name,
+            executable='tracking_control',
+            namespace='robot'+str(i+1),
+            parameters=[file_path],
+            remappings=[('/cmd_vel', 'cmd_vel'), ('/point_nav_state', 'point_nav_state'), ('/odom', 'odom')]
         ))
 
     # Launch them all!
