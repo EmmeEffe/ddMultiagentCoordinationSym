@@ -39,10 +39,10 @@ public:
 private:
   void _2ndOrderCallback(const nav_msgs::msg::Odometry::SharedPtr msg){
     track->updateVirtualUni(msg);
+    cmd_vel_publisher->publish(track->getCommandVel());
   }
   void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg){
     track->updateRealUni(msg);
-    cmd_vel_publisher->publish(track->getCommandVel());
   }
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _2ndOrder_sub, odom_sub;
