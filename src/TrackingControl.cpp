@@ -41,13 +41,20 @@ geometry_msgs::msg::Twist TrackingControl::getCommandVel()
     double e2 = yVehicleVersor(realUni.theta).dot(errorPos);
     double e3 = virtualUni.theta - realUni.theta;
 
+    double zeroThreshold = 0.3; // 30cm
+    if((e1*e1+e2*e2)<=zeroThreshold*zeroThreshold){ // If so close to target, stop
+        cmd_vel.linear.x = 0;
+        cmd_vel.angular.z = 0;
+        return cmd_vel;
+    }
+
     double desired_thetadot = calculateThetaDot();
 
     double cmdUni_vel = desired_vel * std::cos(e3) + k._1 * e1;
     double cmdUni_rot = desired_thetadot + k._2 * desired_vel * e2 + std::sin(e3);
 
-    cmd_vel.linear.x = cmdUni_vel;
-    cmd_vel.angular.z = cmdUni_rot;
+    cmd_vel.linear.x = saturate(cmdUni_vel, 1.0);
+    cmd_vel.angular.z = saturate(cmdUni_rot, 2.0); // Saturate signal
 
     return cmd_vel;
 }

@@ -43,7 +43,7 @@ def generate_launch_description():
     # Include the Gazebo launch file, provided by the gazebo_ros package
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]), launch_arguments={'use_sim_time': 'true'}.items()
+                    get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]), launch_arguments={'use_sim_time': 'true', 'world': os.path.join(get_package_share_directory(package_name), 'worlds', 'empty.world')}.items()
              )
 
     spawnEntityArray = [rsp, gazebo]
@@ -61,10 +61,10 @@ def generate_launch_description():
                                     '-entity', 'my_robot'+str(i+1)],
                             output='screen'))
 
-        spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py', # Spawn Targets
+        '''spawnEntityArray.append(Node(package='gazebo_ros', executable='spawn_entity.py', # Spawn Targets
                             arguments=['-topic', 'target'+str(i+1)+'/robot_description',
                                     '-entity', 'target'+str(i+1)],
-                            output='screen'))
+                            output='screen'))'''
 
 
         # Append the com to pt node

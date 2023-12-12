@@ -7,7 +7,7 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include "utilities.h"
 
-#define DERIV_FILTER_SIZE 10
+#define DERIV_FILTER_SIZE 100
 
 struct Point2d{
     double x = 0;

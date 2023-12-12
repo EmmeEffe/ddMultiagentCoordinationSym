@@ -18,15 +18,15 @@ public:
     );
 
     odom_sub = this->create_subscription<nav_msgs::msg::Odometry>(
-        "point_nav_state", 10, std::bind(&TrackingControlNode::odomCallback, this, std::placeholders::_1)
+        "odom", 10, std::bind(&TrackingControlNode::odomCallback, this, std::placeholders::_1)
     );
 
     cmd_vel_publisher = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
 
     // Declare parameters
     this->declare_parameter("publish_rate", 0.01);
-    this->declare_parameter("k1", 1);
-    this->declare_parameter("k2", 1);
+    this->declare_parameter("k1", 1.0);
+    this->declare_parameter("k2", 1.0);
 
     // Get the parameter
     this->get_parameter("publish_rate", publish_rate);

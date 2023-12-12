@@ -13,7 +13,7 @@
 
 class PointMassDynamics : public rclcpp::Node {
 public:
-  PointMassDynamics() : Node("point_mass_dynamics") {    
+  PointMassDynamics() : Node("point_mass_dynamics") {
 
     input_subscription = this->create_subscription<std_msgs::msg::Float64MultiArray>(
         "cmd_acc", 10, std::bind(&PointMassDynamics::inputCallback, this, std::placeholders::_1)
@@ -22,7 +22,6 @@ public:
     // Subscribe also to target_pos
 
     odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("point_nav_state", 10); // Publish new point movement data
-
 
     // Declare parameters
     this->declare_parameter("publish_rate", 0.01); 
