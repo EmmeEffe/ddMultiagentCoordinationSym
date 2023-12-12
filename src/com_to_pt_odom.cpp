@@ -22,7 +22,7 @@ public:
     new_odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("newpt_coordinates", 10); // Publish new point movement data
 
     // Declare parameters
-    this->declare_parameter("dist_l", 0.5); // dist_l is the distance between p_tilde and p
+    this->declare_parameter("dist_l", 0.24); // dist_l is the distance between p_tilde and p
 
     // Get the parameter
     this->get_parameter("dist_l", dist_l);

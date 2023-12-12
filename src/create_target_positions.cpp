@@ -9,6 +9,7 @@
 #include <rclcpp/qos.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include "utilities.h"
 #include "targetPositionGenerator.h"
 
@@ -54,6 +55,8 @@ public:
       publishers[i] = this->create_publisher<std_msgs::msg::Float64MultiArray>(topic_name, 10);
     }
 
+    marker_publisher = this->create_publisher<visualization_msgs::msg::MarkerArray>("markers", 10);
+
     clock_subscription = this->create_subscription<rosgraph_msgs::msg::Clock>("clock", rclcpp::QoS(rclcpp::KeepLast(10)).best_effort(), std::bind(&CreateTargetPositions::timeTick, this, std::placeholders::_1)); // Subscribe to clock data
   }
 
@@ -62,6 +65,8 @@ private:
       if(1/*msg->clock.sec!=oldSec*/){ // Tick every second
         oldSec = msg->clock.sec;
         std::vector<Vector2d> Points = targetGen->getFormation(oldSec);
+        visualization_msgs::msg::MarkerArray marker_array;
+        marker_array.markers.resize(num_robots);
         auto pos_msg = std_msgs::msg::Float64MultiArray();
         pos_msg.data.resize(2);
         for(int i=0; i<num_robots; i++){ // Publish all the messages
@@ -69,12 +74,38 @@ private:
           pos_msg.data[1] = Points[i](1);
 
           publishers[i]->publish(pos_msg); // Publish the message
+
+          auto& marker = marker_array.markers[i];
+          marker.header.frame_id = "map"; // Set the frame id (adjust accordingly)
+          marker.header.stamp = rclcpp::Clock().now();
+          marker.ns = "robots";
+          marker.id = i;
+          marker.type = visualization_msgs::msg::Marker::SPHERE;
+          marker.action = visualization_msgs::msg::Marker::ADD;
+          marker.pose.position.x = Points[i](0);
+          marker.pose.position.y = Points[i](1);
+          marker.pose.position.z = 0.0;
+          marker.pose.orientation.x = 0.0;
+          marker.pose.orientation.y = 0.0;
+          marker.pose.orientation.z = 0.0;
+          marker.pose.orientation.w = 1.0;
+          marker.scale.x = 0.2; // Adjust the scale as needed
+          marker.scale.y = 0.2;
+          marker.scale.z = 0.2;
+          marker.color.a = 1.0; // Fully opaque
+          marker.color.r = 1.0; // Red color
+          marker.color.g = 0.0;
+          marker.color.b = 0.0;
+
+          // Publish the marker
+          marker_publisher->publish(marker_array);
         }
       }
     }
 
   std::vector<rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr> publishers; // Create the vector containing all the publishers' pointers
   rclcpp::Subscription<rosgraph_msgs::msg::Clock>::SharedPtr clock_subscription;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr marker_publisher;
 
   // Parameters from YAML
   int num_robots;
