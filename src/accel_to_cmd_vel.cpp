@@ -34,6 +34,7 @@ public:
     // Advertise on the cmd_vel topic
     cmd_vel_publisher_ = this->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10); // Publish cmd_vel data
     theta_pub = this->create_publisher<std_msgs::msg::Float64>("theta_orientation", 10);
+    vel_fixed_publisher = this->create_publisher<std_msgs::msg::Float64MultiArray>("cmd_vel_fixed_frame", 10);
 
     // Declare parameters
     this->declare_parameter("dist_l", 0.24); // dist_l is the distance between p_tilde and p
@@ -59,6 +60,10 @@ private:
     linear_velocity_x = msg->twist.twist.linear.x;
     linear_velocity_y = msg->twist.twist.linear.y;
 
+    RCLCPP_INFO(this->get_logger(), "-- ODOM CALLBACK --");
+    RCLCPP_INFO(this->get_logger(), "Lin_x: %f", linear_velocity_x);
+    RCLCPP_INFO(this->get_logger(), "Lin_y: %f", linear_velocity_y);
+
     if(linear_velocity_x<deadzone)
       linear_velocity_x = 0;
     if(linear_velocity_y<deadzone)
@@ -81,13 +86,28 @@ private:
       double est_vel_x = linear_velocity_x + accel_x * tau;
       double est_vel_y = linear_velocity_y + accel_y * tau;
 
+      RCLCPP_INFO(this->get_logger(), "-- INPUT CALLBACK --");
+      RCLCPP_INFO(this->get_logger(), "Accel_x: %f", accel_x);
+      RCLCPP_INFO(this->get_logger(), "Accel_y: %f", accel_y);
+      RCLCPP_INFO(this->get_logger(), "Lin_x: %f", linear_velocity_x);
+      RCLCPP_INFO(this->get_logger(), "Lin_y: %f", linear_velocity_y);
+      RCLCPP_INFO(this->get_logger(), "tau: %f", tau);
+      RCLCPP_INFO(this->get_logger(), "est_v_x: %f", est_vel_x);
+      RCLCPP_INFO(this->get_logger(), "est_v_y: %f", est_vel_y);
+
+      std_msgs::msg::Float64MultiArray mess;
+      mess.data.resize(2);
+      mess.data.at(0) = est_vel_x;
+      mess.data.at(1) = est_vel_y;
+      vel_fixed_publisher->publish(mess);
+
       // Remap Velocity of p tilde point to unicycle equivalent
       Eigen::Vector2d unicycle_cmd = velocityToUnicycle(est_vel_x, est_vel_y, dist_l, theta_orientation);
 
       // Create and publish the control command on cmd_vel topic
       auto cmd_vel_msg = std::make_unique<geometry_msgs::msg::Twist>();
-      cmd_vel_msg->linear.x = saturate(unicycle_cmd(0), 3);
-      cmd_vel_msg->angular.z = saturate(unicycle_cmd(1), 2); // TODO Control if is in radians/s
+      cmd_vel_msg->linear.x = unicycle_cmd(0); // saturate(unicycle_cmd(0), 3);
+      cmd_vel_msg->angular.z = saturate(unicycle_cmd(1), 0.4); // TODO Control if is in radians/s
 
       // Publish the command
       cmd_vel_publisher_->publish(std::move(cmd_vel_msg));
@@ -109,6 +129,7 @@ private:
   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr input_subscription;
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_publisher_;  
   rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr theta_pub;
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr vel_fixed_publisher;
   
   rclcpp::Subscription<rosgraph_msgs::msg::Clock>::SharedPtr clock_subscription;
   double oldSec = 0;
@@ -116,7 +137,7 @@ private:
 
   // Parameters from file
   float dist_l; // Distance between p and p tilde
-  double deadzone = 0.05; // If speed is less than this, set to zero
+  double deadzone = 0.00001; // If speed is less than this, set to zero
 };
 
 int main(int argc, char **argv) {

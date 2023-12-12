@@ -5,6 +5,7 @@
 
             <ros>
                 <namespace>$(arg namespace)</namespace>
+                <remapping>/tf:=/$(arg namespace)/tf</remapping>
             </ros>
 
             <!-- WHEEL Information -->
@@ -14,8 +15,8 @@
             <wheel_diameter>0.1</wheel_diameter>
 
             <!-- Limits -->
-            <max_wheel_torque>200</max_wheel_torque>
-            <max_wheel_acceleration>200</max_wheel_acceleration>
+            <max_wheel_torque>1</max_wheel_torque>
+            <max_wheel_acceleration>2</max_wheel_acceleration>
 
             <!-- Odometry Frame -->
             <odometry_frame>odom</odometry_frame>

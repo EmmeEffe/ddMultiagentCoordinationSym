@@ -12,7 +12,7 @@
     <joint name="unique_joint" type="fixed">
         <parent link="base_link"/>
         <child link="circle"/>
-        <origin xyz="0 1 0"/>
+        <origin xyz="8.0 5.0 0"/>
     </joint>
 
     <link name="circle">
