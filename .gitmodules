@@ -1,0 +1,6 @@
+[submodule "Riccati_Solver"]
+	path = Riccati_Solver
+	url = https://github.com/TakaHoribe/Riccati_Solver.git
+[submodule "src/Riccati_Solver"]
+	path = src/Riccati_Solver
+	url = https://github.com/TakaHoribe/Riccati_Solver.git
