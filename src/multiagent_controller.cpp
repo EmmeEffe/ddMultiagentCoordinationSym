@@ -93,7 +93,9 @@ private:
       RCLCPP_INFO(this->get_logger(), "All targets received, starting the controller");
       mac = new MultiAgentControl(M, N, b_coeff, a_coeff, statusToPosition(x), statusToPosition(h), maxVel, maxAcc);
     }
-    x_received.clear();
+    for(int i=0; i<num_robots; i++){ // Clear the vector
+        x_received[i] = false;
+    }
     //std::vector<Eigen::Vector4d> x, double time, std::vector<Eigen::Vector4d> &h, std::vector<Eigen::Vector4d> &errors
     std::vector<Eigen::Vector4d> errors;
     std::vector<Eigen::Vector4d> calc_trajectories;
