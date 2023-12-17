@@ -24,6 +24,7 @@ public:
     ~secondOrderDynamics();
 
     nav_msgs::msg::Odometry returnNewTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc);
+    int getTick(){return state.count_tick;};
 
 
 private:

@@ -35,6 +35,13 @@ public:
 private:
   void inputCallback(const std_msgs::msg::Float64MultiArray::SharedPtr msg){
     if (msg->data.size() == 2) {
+        if(std::isnan(msg->data[0]) || std::isnan(msg->data[1])){
+            RCLCPP_WARN(this->get_logger(), "Received NaN acceleration, setting zero acceleration at iteration %d", sys->getTick());
+            msg->data[0] = 0;
+            msg->data[1] = 0;
+            odom_publisher->publish(sys->returnNewTwistMessage(msg));
+            return;
+        }
         odom_publisher->publish(sys->returnNewTwistMessage(msg));
     } else {
       RCLCPP_WARN(this->get_logger(), "Received array with incorrect size");

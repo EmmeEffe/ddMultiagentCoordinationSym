@@ -33,6 +33,7 @@ find_package(rclcpp REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 
 add_executable(accel_to_cmd_vel src/accel_to_cmd_vel.cpp src/utilities.h)
 ament_target_dependencies(accel_to_cmd_vel rclcpp nav_msgs geometry_msgs)
@@ -60,16 +61,15 @@ ament_target_dependencies(TrackingControl rclcpp nav_msgs geometry_msgs std_msgs
 
 add_executable(create_target_positions src/create_target_positions.cpp src/utilities.h)
 add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/utilities.h)
-target_link_libraries(create_target_positions targetPositionGenerator)
-ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs rosgraph_msgs)
+target_link_libraries(create_target_positions targetPositionGenerator)  # Link your executable with the library
+ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs rosgraph_msgs visualization_msgs)
 
 install(TARGETS
   accel_to_cmd_vel
   create_target_positions
-  com_to_pt_odom
   control_system_proportional
-  step_accel
   point_mass_dynamics
+  tracking_control
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <math.h>
+#include <vector>
 
 using Eigen::MatrixXf;
 using Eigen::MatrixXd;
@@ -52,21 +53,21 @@ bool isAdjacent(MatrixXi adjacency, int i, int j){
  * B has dimension N, A and adjacency have dimension NxN, Targets has dimension M and Followers has dimension N-M
 */
 
-MatrixXf getWeighMatrix(VectorXi Targets, VectorXi Followers, MatrixXi adjacency, VectorXf b_coeff, MatrixXf a_coeff){
+MatrixXd getWeighMatrix(VectorXi Targets, VectorXi Followers, MatrixXi adjacency, VectorXd b_coeff, MatrixXd a_coeff){
 
     // Verify dimension
     int N = Targets.size() + Followers.size();
     if(!(adjacency.rows()==adjacency.cols()&&adjacency.cols()==N)){
-        // TODO Raise an error
+        std::cout<<"Adjacency Matrix has wrong dimension: "<<adjacency.rows()<<"x"<<adjacency.cols()<<" instead of "<<N<<"x"<<N;
     }
     if(!(a_coeff.rows()==a_coeff.cols()&&a_coeff.cols()==N)){
-        // TODO Raise an error
+        std::cout<<"A Matrix has wrong dimension: "<<a_coeff.rows()<<"x"<<a_coeff.cols()<<" instead of "<<N<<"x"<<N;
     }
     if(!(b_coeff.size()==N)){
-        // TODO Raise an error
+        std::cout<<"B Vector has wrong dimension: "<<b_coeff.size()<<" instead of "<<N;
     }
 
-    MatrixXf weigths(N, N);
+    MatrixXd weigths(N, N);
 
     for(int i=0; i<N; i++){
         for(int j=0; j<N; j++){
@@ -172,9 +173,39 @@ void normBetween(double &x, double &y, double max){ // saturate between max and 
     }
 }
 
+void normBetween(Eigen::Vector2d &vec, double max){ // saturate between max and -max (in norm)
+    if(vec.norm() > max){
+        vec = vec/vec.norm() * max;
+    }
+}
+
+
 double saturate(double val, double sat){
     return std::max(-sat, std::min(val, sat));
 }
 
+Vector2d statusToPosition(Eigen::Vector4d status){
+    return Vector2d(status(0), status(2));
+}
+
+std::vector<Vector2d> statusToPosition(std::vector<Eigen::Vector4d> status){
+    std::vector<Vector2d> positions;
+    for(unsigned long int i=0; i<status.size(); i++){
+        positions.push_back(statusToPosition(status[i]));
+    }
+    return positions;
+}
+
+Vector2d statusToVelocity(Eigen::Vector4d status){
+    return Vector2d(status(1), status(3));
+}
+
+std::vector<Vector2d> statusToVelocity(std::vector<Eigen::Vector4d> status){
+    std::vector<Vector2d> velocities;
+    for(unsigned long int i=0; i<status.size(); i++){
+        velocities.push_back(statusToVelocity(status[i]));
+    }
+    return velocities;
+}
 
 #endif
