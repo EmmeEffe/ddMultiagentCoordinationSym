@@ -25,8 +25,8 @@ public:
 private:
     void generateWeightMatrices();
     Eigen::MatrixXi generateSimpleAdjacency(Eigen::VectorXi Followers, Eigen::VectorXi Targets);
-    std::vector<Eigen::Vector4d> errors(Eigen::MatrixXd weigths, std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h);
-    Eigen::Vector4d getError(Eigen::MatrixXd weigths, std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, int i);
+    std::vector<Eigen::Vector4d> errors(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h);
+    Eigen::Vector4d getError(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, int i);
     std::vector<Eigen::Vector2d> nonLinearFunctions(Eigen::MatrixXd B, Eigen::MatrixXd P, std::vector<Eigen::Vector4d> error, double k);
     Eigen::MatrixXd getK(Eigen::MatrixXd &P);
     Eigen::Vector4d trapezoidalVelocityProfile(Point start, Point end, double maxVelocity, double maxAcceleration, double currentTime);

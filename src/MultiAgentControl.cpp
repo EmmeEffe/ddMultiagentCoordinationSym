@@ -58,7 +58,7 @@ Eigen::MatrixXi MultiAgentControl::generateSimpleAdjacency(Eigen::VectorXi Follo
     Eigen::MatrixXi adjacency = Eigen::MatrixXi::Zero(N, N);
     for(int i=0; i<M; i++){
         for(int j=0; j<N-M; j++){
-            adjacency(Followers(i), Targets(j)) = 1;
+            adjacency(Targets(j), Followers(i)) = 1;
         }
     }
     return adjacency;
@@ -66,6 +66,12 @@ Eigen::MatrixXi MultiAgentControl::generateSimpleAdjacency(Eigen::VectorXi Follo
 
 void MultiAgentControl::generateWeightMatrices(){
     W_Matrix = getWeighMatrix(Targets, Followers, adjacency, b_coeff, a_coeff);
+    std::cout << "W_Matrix in generation:\n" << W_Matrix << std::endl;
+    std::cout << "b_coeff: " << b_coeff << std::endl;
+    std::cout << "a_coeff: " << a_coeff << std::endl;
+    std::cout << "Followers: " << Followers << std::endl;
+    std::cout << "Targets: " << Targets << std::endl;
+    std::cout << "adjacency: " << adjacency << std::endl;
 }
 
 std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Vector4d> x, double time, std::vector<Eigen::Vector4d> &h, std::vector<Eigen::Vector4d> &errors){
@@ -91,32 +97,38 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     for(int i=0; i<M; i++){
         h[i] = trapezoidalVelocityProfile(startPoints[i], endPoints[i], maxVelocity, maxAcceleration, time);
     }
-
-    errors = this->errors(W_Matrix, x, h);
+    errors = this->errors(x, h);
     Eigen::MatrixXd P = Eigen::MatrixXd::Zero(A_Dim, A_Dim);
     Eigen::MatrixXd K = this->getK(P);
     std::vector<Eigen::Vector2d> nonLinear = this->nonLinearFunctions(B, P, errors, thresh_k);
     std::vector<Eigen::Vector2d> u(M);
     for(int i=0; i<M; i++){
         u[i] = c * (K * errors[i]) + gamma - mu * nonLinear[i];
-    }
 
-    // Limit the magnitude of u
-    for(int i=0; i<M; i++){
+        // Check if u is nan
+        if(std::isnan(u[i](0)) || std::isnan(u[i](1))){
+        throw std::runtime_error("Error value is NaN");
+        }
+
         normBetween(u[i], sigma);
+
+        // Check if u is nan after normBetween
+        if(std::isnan(u[i](0)) || std::isnan(u[i](1))){
+        throw std::runtime_error("Error value is NaN");
+        }
     }
 
     return u;
 }
 
-std::vector<Eigen::Vector4d> MultiAgentControl::errors(Eigen::MatrixXd weigths, std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h) // Return error array
+std::vector<Eigen::Vector4d> MultiAgentControl::errors(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h) // Return error array
 {
     std::vector<Eigen::Vector4d> errors;
 
-    if( weigths.rows()==N && weigths.cols()==N && h.size() >= (std::size_t)M && x.size() == (std::size_t)N){
+    if( W_Matrix.rows()==N && W_Matrix.cols()==N && h.size() >= (std::size_t)M && x.size() == (std::size_t)N){
         errors.resize(M);
         for(int i=0; i<M; i++){ // For every element in vector
-            errors[i] = getError(weigths, x, h, i);
+            errors[i] = getError(x, h, i);
         }
         return errors;
     }else{
@@ -125,15 +137,54 @@ std::vector<Eigen::Vector4d> MultiAgentControl::errors(Eigen::MatrixXd weigths, 
     }
 }
 
-Eigen::Vector4d MultiAgentControl::getError(Eigen::MatrixXd weigths, std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, int i){
-    Eigen::Vector4d err(0,0);
+Eigen::Vector4d MultiAgentControl::getError(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, int i){
+    Eigen::Vector4d err(0,0, 0, 0);
     Eigen::Vector4d thisErr = x[i] - h[i];
     for(int j=0; j<M; j++){
-        err = err + weigths(i,j) * (thisErr-(x[j] - h[j]));
+        err = err + W_Matrix(i,j) * (thisErr-(x[j] - h[j]));
+        // Raise error and print variables
+    if (std::isnan(err.x()) || std::isnan(err.y()) || std::isnan(err.z()) || std::isnan(err.w())) {
+        std::cout << "Error value is NaN -- INSIDE FIRST" << std::endl;
+        std::cout << err.transpose() << std::endl;
+        std::cout << "j" << j << std::endl;
+        std::cout << "x[" << i << "]: " << x[i].transpose() << std::endl;
+        std::cout << "h[" << i << "]: " << h[i].transpose() << std::endl;
+        std::cout << "thisErr: " << thisErr.transpose() << std::endl;
+        std::cout << "W_Matrix.row(" << i << "): " << W_Matrix.row(i) << std::endl;
+        std::cout << "W_Matrix.col(" << i << "): " << W_Matrix.col(i) << std::endl;
+        std::cout << "W_Matrix: " << std::endl << W_Matrix << std::endl;
+        throw std::runtime_error("Error value is NaN");
+    }
     }
     for(int k=M; k<N; k++){
-        err = err + weigths(i,k) * (thisErr)-x[k];
+        err = err + W_Matrix(i,k) * (thisErr-x[k]);    
+        if (std::isnan(err.x()) || std::isnan(err.y()) || std::isnan(err.z()) || std::isnan(err.w())) {
+        std::cout << "Error value is NaN -- INSIDE SECOND" << std::endl;
+        std::cout << err.transpose() << std::endl;
+        std::cout << "k" << k << std::endl;
+        std::cout << "x[" << i << "]: " << x[i].transpose() << std::endl;
+        std::cout << "h[" << i << "]: " << h[i].transpose() << std::endl;
+        std::cout << "thisErr: " << thisErr.transpose() << std::endl;
+        std::cout << "W_Matrix.row(" << i << "): " << W_Matrix.row(i) << std::endl;
+        std::cout << "W_Matrix.col(" << i << "): " << W_Matrix.col(i) << std::endl;
+        std::cout << "W_Matrix: " << std::endl << W_Matrix << std::endl;
+        throw std::runtime_error("Error value is NaN");
     }
+    }
+
+    // Raise error and print variables
+    if (std::isnan(err.x()) || std::isnan(err.y()) || std::isnan(err.z()) || std::isnan(err.w())) {
+        std::cout << "Error value is NaN" << std::endl;
+        std::cout << err.transpose() << std::endl;
+        std::cout << "x[" << i << "]: " << x[i].transpose() << std::endl;
+        std::cout << "h[" << i << "]: " << h[i].transpose() << std::endl;
+        std::cout << "thisErr: " << thisErr.transpose() << std::endl;
+        std::cout << "W_Matrix.row(" << i << "): " << W_Matrix.row(i) << std::endl;
+        std::cout << "W_Matrix.col(" << i << "): " << W_Matrix.col(i) << std::endl;
+        std::cout << "W_Matrix: " << std::endl << W_Matrix << std::endl;
+        throw std::runtime_error("Error value is NaN");
+    }
+
     return err;
 }
 
@@ -155,6 +206,9 @@ std::vector<Eigen::Vector2d> MultiAgentControl::nonLinearFunctions(Eigen::Matrix
             nonLinear[i] = val/norm;
         }else{
             nonLinear[i] = val/k;
+        }
+        if (std::isnan(nonLinear[i].x()) || std::isnan(nonLinear[i].y())) {
+            throw std::runtime_error("Nonlinear value is NaN");
         }
     }
     return nonLinear;
@@ -212,7 +266,7 @@ Eigen::Vector4d MultiAgentControl::trapezoidalVelocityProfile(Point start, Point
     double timeToMaxVelocity2 = timeToMaxVelocity + time_max_velocity;
 
     if(currentTime<timeToMaxVelocity){
-        return Eigen::Vector4d(start(0) + fact_x * maxAcceleration * currentTime * currentTime / 2, 
+        return Eigen::Vector4d(start(0) + fact_x * maxAcceleration * currentTime * currentTime / 2,
                                 fact_x * maxAcceleration * currentTime,
                                 start(1) + fact_y * maxAcceleration * currentTime * currentTime / 2,
                                 fact_y * maxAcceleration * currentTime);
