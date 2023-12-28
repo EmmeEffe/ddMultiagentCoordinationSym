@@ -55,8 +55,8 @@ void articleConstantValues::resizeAllMatrices()
     weights_0.resize(N, N);
     weights_1.resize(N, N);
 
-    Targets.resize(M);
-    Followers.resize(N-M);
+    Targets.resize(N-M);
+    Followers.resize(M);
 }
 
 void articleConstantValues::fillMatrices()
@@ -132,7 +132,7 @@ void articleConstantValues::fillMatrices()
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, // 9
                     0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1, 0, // 10
                     0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, // 11
-                    0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0,  // 12
+                    0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0;  // 12
 
     b_coeffs_0 << 2, 1, 1, 3;
 
@@ -168,7 +168,7 @@ void articleConstantValues::fillMatrices()
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // 9
                     0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,  // 10
                     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2,  // 11
-                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0,  // 12
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0;  // 12
 
     b_coeffs_1 << 3, 2, 2, 3;
 
@@ -176,8 +176,8 @@ void articleConstantValues::fillMatrices()
     sigma = 0.5;
     v_max = 10; // 10m/s
 
-    Targets << 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11; // IMPORTANT, Index from zero
-    Followers << 12, 13, 14, 15;
+    Followers << 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11; // IMPORTANT, Index from zero
+    Targets << 12, 13, 14, 15;
 }
 
 void articleConstantValues::calcValues()
@@ -185,15 +185,15 @@ void articleConstantValues::calcValues()
     // Calculate the values that can be calculated from the matrices
 
     // Calculate the weights
-    weights_0 = getWeighMatrix(Targets, Followers, adjacency_0, b_coeffs_0, a_coeffs_0);
-    weights_1 = getWeighMatrix(Targets, Followers, adjacency_1, b_coeffs_1, a_coeffs_1);
+    weights_0 = getWeighMatrix(Targets, Followers, adjacency_0, b_coeffs_0, a_coeffs_0.transpose());
+    weights_1 = getWeighMatrix(Targets, Followers, adjacency_1, b_coeffs_1, a_coeffs_1.transpose());
 
 }
 
 void articleConstantValues::calcK() // If you want to manually calculate K and P
 {
     solveRiccatiIterationC(A, B, Q, R, P); // Solve and calc P
-    Eigen::MatrixXd K = -R.inverse() * (B.transpose()*P);
+    Eigen::MatrixXd K = -R.inverse().eval() * (B.transpose().eval()*P);
 }
 
 void articleConstantValues::addTargetsToPositionList(std::vector<Eigen::Vector4d> &positionList, double time)

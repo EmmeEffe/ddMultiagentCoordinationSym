@@ -43,15 +43,19 @@ int secondOrderDynamics::tick(Point2d acc) // evolve the state
     return state.count_tick;
 }
 
-
-nav_msgs::msg::Odometry secondOrderDynamics::returnNewTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc)
+void secondOrderDynamics::newTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc)
 {
     Point2d ptAcc;
     ptAcc.x = acc->data[0];
     ptAcc.y = acc->data[1];
 
     tick(ptAcc); // Update the system
+}
 
+
+nav_msgs::msg::Odometry secondOrderDynamics::returnNewTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc)
+{
+    newTwistMessage(acc);
     return returnOdometry();
 }
 

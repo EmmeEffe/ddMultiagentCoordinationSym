@@ -25,11 +25,11 @@ public:
 
     nav_msgs::msg::Odometry returnNewTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc);
     int getTick(){return state.count_tick;};
-
+    void newTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc);
+    nav_msgs::msg::Odometry returnOdometry();
 
 private:
     int tick(Point2d acc);
-    nav_msgs::msg::Odometry returnOdometry();
     State state;
     double timeInt;
 };

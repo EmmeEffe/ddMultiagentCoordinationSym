@@ -31,8 +31,9 @@ using Eigen::Quaterniond;
 
 bool isInVector(VectorXi vect, int elem){
     for(int i=0; i<vect.size(); i++){
-        if(vect(i)==elem)
+        if(vect(i)==elem){
             return true;
+        }
     }
     return false;
 }
@@ -57,15 +58,6 @@ MatrixXd getWeighMatrix(VectorXi Targets, VectorXi Followers, MatrixXi adjacency
 
     // Verify dimension
     int N = Targets.size() + Followers.size();
-    if(!(adjacency.rows()==adjacency.cols()&&adjacency.cols()==N)){
-        std::cout<<"Adjacency Matrix has wrong dimension: "<<adjacency.rows()<<"x"<<adjacency.cols()<<" instead of "<<N<<"x"<<N;
-    }
-    if(!(a_coeff.rows()==a_coeff.cols()&&a_coeff.cols()==N)){
-        std::cout<<"A Matrix has wrong dimension: "<<a_coeff.rows()<<"x"<<a_coeff.cols()<<" instead of "<<N<<"x"<<N;
-    }
-    if(!(b_coeff.size()==N)){
-        std::cout<<"B Vector has wrong dimension: "<<b_coeff.size()<<" instead of "<<N;
-    }
 
     MatrixXd weigths(N, N);
 
@@ -80,7 +72,7 @@ MatrixXd getWeighMatrix(VectorXi Targets, VectorXi Followers, MatrixXi adjacency
                 continue;
             }
             if((isInVector(Targets, j))&&(isAdjacent(adjacency,j,i))){  // If j Target and edge (j,i) then b_j
-                weigths(i,j) = (float)b_coeff(j);
+                weigths(i,j) = (float)b_coeff(j-Followers.size());
                 continue;
             }
             if((isInVector(Followers, i))&&(isInVector(Followers, j))&&(isAdjacent(adjacency,j,i))){  // If i,j Followers and edge (j,i) then a_i_j

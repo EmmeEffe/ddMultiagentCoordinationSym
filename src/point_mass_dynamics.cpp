@@ -30,6 +30,9 @@ public:
     this->get_parameter("publish_rate", publish_rate);
 
     sys = new secondOrderDynamics(publish_rate);
+
+    // Create a timer to call the timerCallback function every 0.01 seconds
+    timer = this->create_wall_timer(std::chrono::duration<double>(publish_rate), std::bind(&PointMassDynamics::timerCallback, this));
   }
 
 private:
@@ -39,16 +42,22 @@ private:
             RCLCPP_WARN(this->get_logger(), "Received NaN acceleration, setting zero acceleration at iteration %d", sys->getTick());
             msg->data[0] = 0;
             msg->data[1] = 0;
-            odom_publisher->publish(sys->returnNewTwistMessage(msg));
+            sys->newTwistMessage(msg);
             return;
         }
-        odom_publisher->publish(sys->returnNewTwistMessage(msg));
+        sys->newTwistMessage(msg);
     } else {
       RCLCPP_WARN(this->get_logger(), "Received array with incorrect size");
     }
   }
+
+  void timerCallback() {
+    odom_publisher->publish(sys->returnOdometry()); // publish odometry at 100Hz
+  }
+
   rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr input_subscription;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_publisher;
+  rclcpp::TimerBase::SharedPtr timer;
 
   secondOrderDynamics *sys;
   double publish_rate;
