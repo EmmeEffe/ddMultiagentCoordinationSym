@@ -19,7 +19,7 @@ create_target_positions:
 
 /**: # This will put all the parameters in every node
   ros__parameters:
-    num_robots: 4 # Numbers of robots to be spawned
+    num_robots: 12 # Numbers of robots to be spawned
     dist_between_robots: 4 # Distance in meters between robots
     dist_l: 0.24 # Distance between p and p tilde
     publish_rate: 0.01 # Time intervals between publishes

@@ -6,9 +6,8 @@ from ament_index_python.packages import get_package_share_directory
 
 
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
 
@@ -49,14 +48,15 @@ def generate_launch_description():
     spawnEntityArray = [rsp, gazebo]
 
     # Append the create target positions node
-    spawnEntityArray.append(Node(
+    '''spawnEntityArray.append(Node(
             package=package_name,
             executable='create_target_positions',
-            parameters=[file_path]))
+            parameters=[file_path]))'''
 
     spawnEntityArray.append(Node(
             package=package_name,
             executable='multi_agent_control',
+            #prefix=['gdbserver localhost:3000'],
             parameters=[file_path]))
 
     # Spawn Every Robot

@@ -15,7 +15,6 @@ class MultiAgentControlNode : public rclcpp::Node {
 public:
   MultiAgentControlNode() : Node("multi_agent_control") {
 
-
     RCLCPP_INFO(this->get_logger(), "Starting MultiAgentControlNode:");
 
     this->declare_parameter("num_robots", 4); // Number of robots
@@ -91,12 +90,11 @@ private:
     if(!doneOnce){
       doneOnce = true;
       RCLCPP_INFO(this->get_logger(), "All targets received, starting the controller");
-      mac = new MultiAgentControl(M, N, b_coeff, a_coeff, statusToPosition(x), statusToPosition(h), maxVel, maxAcc);
+      mac = new MultiAgentControl();
     }
     for(int i=0; i<num_robots; i++){ // Clear the vector
         x_received[i] = false;
     }
-    //std::vector<Eigen::Vector4d> x, double time, std::vector<Eigen::Vector4d> &h, std::vector<Eigen::Vector4d> &errors
     std::vector<Eigen::Vector4d> errors;
     std::vector<Eigen::Vector4d> calc_trajectories;
     std::vector<Vector2d> accels = mac->getControl(x, currentTime, calc_trajectories, errors);
@@ -129,14 +127,8 @@ private:
   std::vector<bool> h_received, x_received;
   bool doneOnce = false;
 
-  MatrixXd a_coeff = MatrixXd::Ones(4, 4)/16;
-  VectorXd b_coeff = VectorXd::Ones(4)/4;
-  int M = 3;
-  int N = 4;
   double currentTime = 0;
   double timeStep = 0.01;
-  double maxVel = 1;
-  double maxAcc = 1;
 };
 
 int main(int argc, char **argv) {

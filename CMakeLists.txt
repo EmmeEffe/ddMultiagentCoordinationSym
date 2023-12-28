@@ -64,16 +64,24 @@ add_library(targetPositionGenerator SHARED src/targetPositionGenerator.cpp src/u
 target_link_libraries(create_target_positions targetPositionGenerator)  # Link your executable with the library
 ament_target_dependencies(create_target_positions rclcpp nav_msgs geometry_msgs rosgraph_msgs visualization_msgs)
 
+add_executable(multi_agent_control src/multiagent_controller.cpp src/utilities.h)
+add_library(MultiAgentControl SHARED src/MultiAgentControl.cpp src/utilities.h)
+add_library(RiccatiSolver SHARED src/Riccati_Solver/riccati_solver.cpp src/Riccati_Solver/riccati_solver.h)
+target_link_libraries(multi_agent_control MultiAgentControl)  # Link your executable with the library
+target_link_libraries(MultiAgentControl RiccatiSolver)  # Link your executable with the library
+ament_target_dependencies(multi_agent_control rclcpp nav_msgs geometry_msgs rosgraph_msgs visualization_msgs)
+
 install(TARGETS
   accel_to_cmd_vel
   create_target_positions
   control_system_proportional
   point_mass_dynamics
   tracking_control
+  multi_agent_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
 
 # Uncomment this for debug
-#add_compile_options(-g)
+add_compile_options(-g)
