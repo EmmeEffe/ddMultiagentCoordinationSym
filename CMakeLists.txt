@@ -71,6 +71,7 @@ add_library(RiccatiSolver SHARED src/Riccati_Solver/riccati_solver.cpp src/Ricca
 target_link_libraries(multi_agent_control MultiAgentControl)  # Link your executable with the library
 target_link_libraries(ArticleConstantValues RiccatiSolver)  # Link your executable with the library
 target_link_libraries(MultiAgentControl ArticleConstantValues)  # Link your executable with the library
+
 ament_target_dependencies(multi_agent_control rclcpp nav_msgs geometry_msgs rosgraph_msgs visualization_msgs)
 
 install(TARGETS
@@ -79,10 +80,11 @@ install(TARGETS
   control_system_proportional
   point_mass_dynamics
   tracking_control
+  multi_agent_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()
 
 # Uncomment this for debug
-#add_compile_options(-g)
+add_compile_options(-g)
