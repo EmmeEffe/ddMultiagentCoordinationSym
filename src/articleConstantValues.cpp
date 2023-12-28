@@ -176,8 +176,8 @@ void articleConstantValues::fillMatrices()
     sigma = 0.5;
     v_max = 10; // 10m/s
 
-    Targets << 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
-    Followers << 13, 14, 15, 16;
+    Targets << 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11; // IMPORTANT, Index from zero
+    Followers << 12, 13, 14, 15;
 }
 
 void articleConstantValues::calcValues()
@@ -187,6 +187,7 @@ void articleConstantValues::calcValues()
     // Calculate the weights
     weights_0 = getWeighMatrix(Targets, Followers, adjacency_0, b_coeffs_0, a_coeffs_0);
     weights_1 = getWeighMatrix(Targets, Followers, adjacency_1, b_coeffs_1, a_coeffs_1);
+
 }
 
 void articleConstantValues::calcK() // If you want to manually calculate K and P
@@ -198,8 +199,9 @@ void articleConstantValues::calcK() // If you want to manually calculate K and P
 void articleConstantValues::addTargetsToPositionList(std::vector<Eigen::Vector4d> &positionList, double time)
 {
     // Add the targets to the position list
+    positionList.resize(N);
     for(int i=0; i<(N-M); i++){
-        positionList.push_back(getTargetPosition(i, time));
+        positionList[i] = getTargetPosition(i, time);
     }
 }
 
@@ -307,7 +309,37 @@ Eigen::Vector2d articleConstantValues::calculateGamma(double t, int i, Subgroups
     return gamma;
 }
 
-Eigen::Vector4d articleConstantValues::getProfile(double t, int i, Subgroups subgroup){ // Returns the profile function for that agent
+Eigen::Vector4d articleConstantValues::getprofile(double t, int i)
+{
+    if(t<60){
+        return calculateProfile(t,i, no_subgroup);
+    }else{
+        switch(i){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                return calculateProfile(t,i,sub_v1);
+            break;
+            case 4:
+            case 5:
+            case 6:
+            case 7:
+                return calculateProfile(t,i,sub_v2);
+            break;
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                return calculateProfile(t,i,sub_v3);
+            break;
+            default:
+                return Eigen::Vector4d(0,0,0,0); // error
+        }
+    }
+}
+
+Eigen::Vector4d articleConstantValues::calculateProfile(double t, int i, Subgroups subgroup){ // Returns the profile function for that agent
     // The article uses a r = 20m and omega = 0.1 rad/s
     double r,omega;
     int total_num;

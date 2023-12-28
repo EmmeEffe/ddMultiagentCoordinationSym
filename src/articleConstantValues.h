@@ -31,7 +31,8 @@ public:
     const Eigen::MatrixXd& getRho() const { return rho; }
     Eigen::Vector2d getgamma(double t, int i);
     Eigen::Vector2d calculateGamma(double t, int i, Subgroups subgroup);
-    Eigen::Vector4d getProfile(double t, int i, Subgroups subgroup);
+    Eigen::Vector4d getprofile(double t, int i);
+    Eigen::Vector4d calculateProfile(double t, int i, Subgroups subgroup);
     void addTargetsToPositionList(std::vector<Eigen::Vector4d> &positionList, double time);
 
     // Inline getters for M, N, mu, sigma, and rho

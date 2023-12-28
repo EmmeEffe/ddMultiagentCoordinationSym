@@ -48,10 +48,7 @@ def generate_launch_description():
     spawnEntityArray = [rsp, gazebo]
 
     # Append the create target positions node
-    '''spawnEntityArray.append(Node(
-            package=package_name,
-            executable='create_target_positions',
-            parameters=[file_path]))'''
+
 
     spawnEntityArray.append(Node(
             package=package_name,
