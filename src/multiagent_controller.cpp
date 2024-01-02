@@ -80,6 +80,7 @@ private:
       doneOnce = true;
       RCLCPP_INFO(this->get_logger(), "All targets received, starting the controller");
       mac = new MultiAgentControl();
+      
       Eigen::MatrixXd W = mac->getWeight(0);
       std::stringstream matrix_values;
       for (int i = 0; i < W.rows(); i++) {
