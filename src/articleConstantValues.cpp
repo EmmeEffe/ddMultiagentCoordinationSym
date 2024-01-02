@@ -240,7 +240,7 @@ Eigen::Vector4d articleConstantValues::getTargetPosition(int index, double time)
             break;
         }
     }
-    return Eigen::Vector4d();
+    return target_pos;
 }
 
 Eigen::Vector2d articleConstantValues::getgamma(double t, int i){
