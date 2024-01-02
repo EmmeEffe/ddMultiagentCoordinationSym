@@ -71,8 +71,8 @@ private:
             }
             RCLCPP_WARN(this->get_logger(), "Robots %s are missing", missing_robots_str.c_str());
             missing_robots_str = "";
-            return;
           }
+          return;
         }
     }
     // Continue if only all have received
