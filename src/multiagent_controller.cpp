@@ -5,6 +5,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <rosgraph_msgs/msg/clock.hpp>
 #include "utilities.h"
@@ -25,8 +26,9 @@ public:
   // Add Subscribers to target_pos and odom, pubishers to cmd_acc
   odom_subscribers.resize(num_robots);
   cmd_acc_publishers.resize(num_robots);
-  trajectories_publishers.resize(num_robots);
+  trajectories_publishers.resize(num_robots+4);
   errors_publishers.resize(num_robots);
+  c_publisher.resize(num_robots);
   x.resize(num_robots);
   x_received.resize(num_robots);
 
@@ -46,9 +48,12 @@ public:
       cmd_acc_publishers[i] = this->create_publisher<std_msgs::msg::Float64MultiArray>(topic_name, 10);
       trajectories_publishers[i] = this->create_publisher<std_msgs::msg::Float64MultiArray>("robot" + std::to_string(i+1) + "/desired_trajectories", 10);
       errors_publishers[i] = this->create_publisher<std_msgs::msg::Float64MultiArray>("robot" + std::to_string(i+1) + "/errors", 10);
+      c_publisher[i] = this->create_publisher<std_msgs::msg::Float64>("robot" + std::to_string(i+1) + "/c_value", 10);
   }
-
+  for(int i=num_robots; i<num_robots+4; i++){
+      trajectories_publishers[i] = this->create_publisher<std_msgs::msg::Float64MultiArray>("target" + std::to_string(i+1) + "/desired_trajectories", 10);
   }
+}
 
 private:
   void odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg, int robot_id) {
@@ -100,8 +105,20 @@ private:
         std_msgs::msg::Float64MultiArray msg_errors;
         msg_errors.data = {errors[i](0), errors[i](1), errors[i](2), errors[i](3)};
         errors_publishers[i]->publish(msg_errors);
+
+        std_msgs::msg::Float64 msg_c;
+        msg_c.data = mac->getC(i);
+        c_publisher[i]->publish(msg_c);
+    }
+
+    for(int i=num_robots; i<num_robots+4; i++){
+      std_msgs::msg::Float64MultiArray msg_traj;
+      msg_traj.data = {calc_trajectories[i](0), calc_trajectories[i](1), calc_trajectories[i](2), calc_trajectories[i](3)};
+      trajectories_publishers[i]->publish(msg_traj);
     }
   }
+
+
 
   // Subscribe to odom data, publish cmd_acc, trajectories and errors
   std::vector <rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr> odom_subscribers;
@@ -109,6 +126,7 @@ private:
   std::vector <rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr> cmd_acc_publishers;
   std::vector <rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr> trajectories_publishers;
   std::vector <rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr> errors_publishers;
+  std::vector <rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr> c_publisher;
 
   MultiAgentControl *mac;
   double publish_rate;

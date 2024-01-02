@@ -212,16 +212,16 @@ Eigen::Vector4d articleConstantValues::getTargetPosition(int index, double time)
         // all target close to (40,40)
         switch(index){
             case 12:
-                target_pos = Eigen::Vector4d(38, 0, 38, 0);
+                target_pos = Eigen::Vector4d(38/60*time, 38/60, 38/60*time, 38/60);
             break;
             case 13:
-                target_pos = Eigen::Vector4d(42, 0, 38, 0);
+                target_pos = Eigen::Vector4d(42/60*time, 42/60, 38/60*time, 38/60);
             break;
             case 14:
-                target_pos = Eigen::Vector4d(42, 0, 42, 0);
+                target_pos = Eigen::Vector4d(42/60*time, 42/60, 42/60*time, 42/60);
             break;
             case 15:
-                target_pos = Eigen::Vector4d(38, 0, 42, 0);
+                target_pos = Eigen::Vector4d(38/60*time, 38/60, 42/60*time, 42/60);
             break;
         }
     }else{ // target sparse

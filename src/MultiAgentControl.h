@@ -22,6 +22,8 @@ public:
     MultiAgentControl();
     std::vector<Eigen::Vector2d> getControl(std::vector<Eigen::Vector4d> x, double time, std::vector<Eigen::Vector4d> &h, std::vector<Eigen::Vector4d> &errors);
     Eigen::MatrixXd getWeight(double timeStep){return articleValues->getWeight(timeStep);};
+    double getC(int i){return c[i];};
+    Eigen::Vector4d getTarget(int i, double time){return articleValues->getTargetPosition(i, time);};
 
 private:
     std::vector<Eigen::Vector4d> getErrors(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, double t);
