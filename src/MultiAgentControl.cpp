@@ -1,5 +1,7 @@
 #include "MultiAgentControl.h"
 
+#include <fstream>
+
 MultiAgentControl::MultiAgentControl()
 {
     articleValues = new articleConstantValues();
@@ -17,8 +19,6 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
      * mu > sigma >= 0
     */
 
-    std::string values;
-
     h.resize(articleValues->getM());
 
     // Get the profiles h for all the robots
@@ -34,9 +34,7 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     errors = this->getErrors(x, h, time); // X has len N, h has len M
 
     // Integrate c_i_dot
-    double old_c;
     for(int i=0; i<articleValues->getM(); i++){
-        old_c = c[i];
         c[i] = c[i] + c_dot_i(errors[i]) * timeStep;
     }
 
@@ -47,6 +45,31 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     for(int i=0; i<articleValues->getM(); i++){
         u[i] = (c[i] + rho_i(errors[i])) * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
     }
+
+    #ifdef DEBUG
+    // File Log Values for Debug Purposes
+    std::ofstream myfile;
+    myfile.open ("/home/martino/Desktop/log.txt", std::ios_base::app);
+    myfile << "\n---\nTime: " << time << "\n";
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "Err[" << i << "] (" << errors[i](0) << ", " << errors[i](1) << ", "<< errors[i](2) << ", "<< errors[i](3) << ")\n";
+    }
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "c_dot[" << i << "] (" << c_dot_i(errors[i]) <<"\n";
+    }
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "c[" << i << "] (" << c[i]<<"\n";
+    }
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "rho[" << i << "] (" <<  rho_i(errors[i]) <<"\n";
+    }
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "nonLinear[" << i << "] (" << nonLinear[i](0) << ", " << nonLinear[i](1) << ")\n";
+    }
+    for(int i=0; i<articleValues->getM(); i++){
+        myfile << "u[" << i << "] (" << u[i](0) << ", " << u[i](1) << ")\n";
+    }
+    #endif
 
     return u;
 }
