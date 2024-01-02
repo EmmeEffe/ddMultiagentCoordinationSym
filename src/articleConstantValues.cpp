@@ -200,7 +200,7 @@ void articleConstantValues::addTargetsToPositionList(std::vector<Eigen::Vector4d
 {
     // Add the targets to the position list
     positionList.resize(N);
-    for(int i=0; i<(N-M); i++){
+    for(int i=M; i<N; i++){
         positionList[i] = getTargetPosition(i, time);
     }
 }
