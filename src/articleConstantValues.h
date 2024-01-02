@@ -41,6 +41,7 @@ public:
     double getMu() const { return mu; }
     double getSigma() const { return sigma; }
 
+    Eigen::Vector4d getTargetPosition(int index, double time);
 
 
 private:
@@ -48,7 +49,6 @@ private:
     void fillMatrices();
     void calcValues();
     void calcK();
-    Eigen::Vector4d getTargetPosition(int index, double time);
 
 
     int M, N, stateDim, controlDim;
