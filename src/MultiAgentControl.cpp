@@ -19,11 +19,14 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
      * mu > sigma >= 0
     */
 
-    h.resize(articleValues->getM());
+    h.resize(articleValues->getN());
 
     // Get the profiles h for all the robots
     for(int i=0; i<articleValues->getM(); i++){
         h[i] = articleValues->getprofile(time, i);
+    }
+    for(int i=articleValues->getM(); i<articleValues->getN(); i++){
+        h[i] = articleValues->getTargetPosition(i, time);
     }
 
     errors.resize(articleValues->getM());
@@ -44,6 +47,7 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
 
     for(int i=0; i<articleValues->getM(); i++){
         u[i] = (c[i] + rho_i(errors[i])) * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
+        //u[i] = 10 * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
     }
 
     #ifdef DEBUG

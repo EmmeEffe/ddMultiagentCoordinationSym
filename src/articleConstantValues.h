@@ -40,9 +40,7 @@ public:
     int getN() const { return N; }
     double getMu() const { return mu; }
     double getSigma() const { return sigma; }
-
     Eigen::Vector4d getTargetPosition(int index, double time);
-
 
 private:
     void resizeAllMatrices();
