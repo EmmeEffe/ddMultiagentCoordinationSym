@@ -211,31 +211,31 @@ Eigen::Vector4d articleConstantValues::getTargetPosition(int index, double time)
     if(time<60){ // All targets grouped
         // all target close to (40,40)
         switch(index){
-            case 0:
+            case 12:
                 target_pos = Eigen::Vector4d(38, 0, 38, 0);
             break;
-            case 1:
+            case 13:
                 target_pos = Eigen::Vector4d(42, 0, 38, 0);
             break;
-            case 2:
+            case 14:
                 target_pos = Eigen::Vector4d(42, 0, 42, 0);
             break;
-            case 3:
+            case 15:
                 target_pos = Eigen::Vector4d(38, 0, 42, 0);
             break;
         }
     }else{ // target sparse
         switch(index){
-            case 0:
+            case 12:
                 target_pos = Eigen::Vector4d(68, 0, 222, 0);
             break;
-            case 1:
+            case 13:
                 target_pos = Eigen::Vector4d(72, 0, 218, 0);
             break;
-            case 2:
+            case 14:
                 target_pos = Eigen::Vector4d(160, 0, 160, 0);
             break;
-            case 3:
+            case 15:
                 target_pos = Eigen::Vector4d(210, 0, 65, 0);
             break;
         }
