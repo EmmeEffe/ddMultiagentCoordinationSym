@@ -19,9 +19,15 @@ int secondOrderDynamics::tick(Point2d acc) // evolve the state
     state.pos.x = state.pos.x + state.vel.x * timeInt; // s(t1) = s(t0) + v(t0) * DELTA t
     state.pos.y = state.pos.y + state.vel.y * timeInt; // s(t1) = s(t0) + v(t0) * DELTA t
 
+    // Limit the acceleration
+    normBetween(acc.x, acc.y, 0.5); // Max acc 0.5m/s^2
+
     //Update Vel
     state.vel.x = state.vel.x + acc.x * timeInt;
     state.vel.y = state.vel.y + acc.y * timeInt;
+
+    // Limit the velocity
+    normBetween(state.vel.x, state.vel.y, 10); // Max vel 10m/s
 
     // Check if any variable becomes NaN
     if (std::isnan(state.pos.x) || std::isnan(state.pos.y) || std::isnan(state.vel.x) || std::isnan(state.vel.y)) {

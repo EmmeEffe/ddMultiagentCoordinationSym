@@ -5,6 +5,7 @@
 
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include "utilities.h"
 
 struct Point2d{
     double x = 0;
