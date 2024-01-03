@@ -36,10 +36,7 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     // Calculate all the errors
     errors = this->getErrors(x, h, time); // X has len N, h has len M
 
-    // Integrate c_i_dot
-    for(int i=0; i<articleValues->getM(); i++){
-        c[i] = c[i] + c_dot_i(errors[i]) * timeStep;
-    }
+
 
     std::vector<Eigen::Vector2d> nonLinear = this->nonLinearFunctions(articleValues->getB(), articleValues->getP(), errors);
 
@@ -50,7 +47,12 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
         //u[i] = 10 * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
     }
 
-    #ifdef DEBUG
+    // Integrate c_i_dot
+    for(int i=0; i<articleValues->getM(); i++){
+        c[i] = c[i] + c_dot_i(errors[i]) * timeStep;
+    }
+
+    #ifdef DEBUG_TXT
     // File Log Values for Debug Purposes
     std::ofstream myfile;
     myfile.open ("/home/martino/Desktop/log.txt", std::ios_base::app);

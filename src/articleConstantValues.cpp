@@ -227,16 +227,16 @@ Eigen::Vector4d articleConstantValues::getTargetPosition(int index, double time)
     }else{ // target sparse
         switch(index){
             case 12:
-                target_pos = Eigen::Vector4d(68, 0, 222, 0);
+                target_pos = Eigen::Vector4d(38.0 + 3.0/4.0*(time-60.0), 3.0/4.0, 38+184.0/40.0*(time-60.0), 184.0/40.0);
             break;
             case 13:
-                target_pos = Eigen::Vector4d(72, 0, 218, 0);
+                target_pos = Eigen::Vector4d(42.0+3.0/4.0*(time-60.0), 3.0/4.0, 38+7.0/4.0*(time-60.0), 7.0/4.0);
             break;
             case 14:
-                target_pos = Eigen::Vector4d(160, 0, 160, 0);
+                target_pos = Eigen::Vector4d(42.0+3.0*(time-60), 3.0, 42.0+3.0*(time-60), 3.0);
             break;
             case 15:
-                target_pos = Eigen::Vector4d(210, 0, 65, 0);
+                target_pos = Eigen::Vector4d(38.0+172.0/40.0*(time-60.0), 172.0/40.0, 42.0+23.0/40.0*(time-60.0), 23.0/40.0);
             break;
         }
     }
@@ -375,7 +375,7 @@ Eigen::Vector4d articleConstantValues::calculateProfile(double t, int i, Subgrou
 
     profile(0) = r * std::sin(omega * t + (2* i * M_PI)/total_num); // I don't put i-1 as the article because there the i goes from 1 to 12, here from 0 to 11
     profile(1) = r * omega * std::cos(omega * t + (2* i * M_PI)/total_num); // Circular Formation
-    profile(2) = r * std::cos(omega * t + (2* i * M_PI)/12);
+    profile(2) = r * std::cos(omega * t + (2* i * M_PI)/total_num);
     profile(3) = -r * omega * std::sin(omega * t + (2* i * M_PI)/total_num); // Circular Formation
     return profile;
 }
