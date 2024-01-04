@@ -2,8 +2,9 @@
 
 #include <fstream>
 
-MultiAgentControl::MultiAgentControl()
+MultiAgentControl::MultiAgentControl(double _timeStep)
 {
+    timeStep = _timeStep;
     articleValues = new articleConstantValues();
     c = std::vector<double>(articleValues->getM(), 0); // Initialize c to zero
 }
@@ -36,23 +37,19 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     // Calculate all the errors
     errors = this->getErrors(x, h, time); // X has len N, h has len M
 
-
-
     std::vector<Eigen::Vector2d> nonLinear = this->nonLinearFunctions(articleValues->getB(), articleValues->getP(), errors);
 
     std::vector<Eigen::Vector2d> u(articleValues->getM());
 
     for(int i=0; i<articleValues->getM(); i++){
         u[i] = (c[i] + rho_i(errors[i])) * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
-        //u[i] = 10 * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
     }
-
     // Integrate c_i_dot
     for(int i=0; i<articleValues->getM(); i++){
         c[i] = c[i] + c_dot_i(errors[i]) * timeStep;
     }
 
-    #ifdef DEBUG_TXT
+    #ifdef DEBUG_txt
     // File Log Values for Debug Purposes
     std::ofstream myfile;
     myfile.open ("/home/martino/Desktop/log.txt", std::ios_base::app);

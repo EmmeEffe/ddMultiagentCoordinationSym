@@ -87,4 +87,4 @@ install(TARGETS
 ament_package()
 
 # Uncomment this for debug
-add_compile_options(-g)
+#add_compile_options(-g)

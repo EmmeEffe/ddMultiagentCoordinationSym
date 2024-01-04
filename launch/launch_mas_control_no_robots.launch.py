@@ -67,7 +67,7 @@ def generate_launch_description():
             package=package_name,
             executable='point_mass_dynamics',
             namespace='robot'+str(i+1),
-            parameters=[file_path],
+            parameters=[file_path, {'robot_id': i}],
             remappings=[('/cmd_acc', 'cmd_acc'), ('/point_nav_state', 'point_nav_state')]
         ))
 

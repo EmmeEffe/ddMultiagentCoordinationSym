@@ -84,7 +84,7 @@ private:
     if(!doneOnce){
       doneOnce = true;
       RCLCPP_INFO(this->get_logger(), "All targets received, starting the controller");
-      mac = new MultiAgentControl();
+      mac = new MultiAgentControl(timeStep);
     }
     for(int i=0; i<num_robots; i++){ // Clear the vector
         x_received[i] = false;

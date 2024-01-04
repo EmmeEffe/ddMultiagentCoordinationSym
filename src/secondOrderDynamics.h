@@ -21,7 +21,7 @@ struct State{ // State of system
 class secondOrderDynamics
 {
 public:
-    secondOrderDynamics(double timeInt);
+    secondOrderDynamics(double timeInt, int index);
     ~secondOrderDynamics();
 
     nav_msgs::msg::Odometry returnNewTwistMessage(std_msgs::msg::Float64MultiArray::SharedPtr acc);
@@ -31,6 +31,7 @@ public:
 
 private:
     int tick(Point2d acc);
+    void initializeRobotPosition(int index);
     State state;
     double timeInt;
 };

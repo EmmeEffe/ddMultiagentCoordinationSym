@@ -24,12 +24,14 @@ public:
     odom_publisher = this->create_publisher<nav_msgs::msg::Odometry>("point_nav_state", 10); // Publish new point movement data
 
     // Declare parameters
-    this->declare_parameter("publish_rate", 0.01); 
+    this->declare_parameter("publish_rate", 0.01);
+    this->declare_parameter("robot_id", 0);
 
     // Get the parameter
     this->get_parameter("publish_rate", publish_rate);
+    this->get_parameter("robot_id", index);
 
-    sys = new secondOrderDynamics(publish_rate);
+    sys = new secondOrderDynamics(publish_rate, index);
 
     // Create a timer to call the timerCallback function every 0.01 seconds
     timer = this->create_wall_timer(std::chrono::duration<double>(publish_rate), std::bind(&PointMassDynamics::timerCallback, this));
@@ -61,6 +63,7 @@ private:
 
   secondOrderDynamics *sys;
   double publish_rate;
+  int index;
 };
 
 int main(int argc, char **argv) {

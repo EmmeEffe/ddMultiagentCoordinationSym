@@ -2,14 +2,25 @@
 #include <cmath> // Include cmath library for std::isnan
 #include <iostream> // Include iostream library for printing
 
-secondOrderDynamics::secondOrderDynamics(double _timeInt)
+secondOrderDynamics::secondOrderDynamics(double _timeInt, int index)
 {
     timeInt = _timeInt;
+    initializeRobotPosition(index);
 }
 
 secondOrderDynamics::~secondOrderDynamics()
 {
 
+}
+
+void secondOrderDynamics::initializeRobotPosition(int index){
+    double r = 15;
+    double omega = 0.1;
+
+    state.pos.x = r * std::sin(2*M_PI*index/12);
+    state.vel.x = omega * r * std::cos(2*M_PI*index/12);
+    state.pos.y = r * std::cos(2*M_PI*index/12);
+    state.vel.y = -omega * r * std::sin(2*M_PI*index/12);
 }
 
 int secondOrderDynamics::tick(Point2d acc) // evolve the state
