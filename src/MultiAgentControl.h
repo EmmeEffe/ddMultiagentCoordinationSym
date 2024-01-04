@@ -31,6 +31,7 @@ private:
     double rho_i(Eigen::Vector4d error);
     double c_dot_i(Eigen::Vector4d error);
 
+    void integrateCDot(std::vector<Eigen::Vector4d> errors);
     std::vector<double> c; // c_i = integral of cdot_i
 
     double timeStep;

@@ -42,12 +42,10 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     std::vector<Eigen::Vector2d> u(articleValues->getM());
 
     for(int i=0; i<articleValues->getM(); i++){
-        u[i] = (c[i] + rho_i(errors[i])) * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
+        u[i] =  (c[i] + rho_i(errors[i]))  * (articleValues->getK() * errors[i]) + articleValues->getgamma(time, i) - articleValues->getMu() * nonLinear[i];
     }
-    // Integrate c_i_dot
-    for(int i=0; i<articleValues->getM(); i++){
-        c[i] = c[i] + c_dot_i(errors[i]) * timeStep;
-    }
+
+    integrateCDot(errors);
 
     #ifdef DEBUG_txt
     // File Log Values for Debug Purposes
@@ -75,6 +73,14 @@ std::vector<Eigen::Vector2d> MultiAgentControl::getControl(std::vector<Eigen::Ve
     #endif
 
     return u;
+}
+
+void MultiAgentControl::integrateCDot(std::vector<Eigen::Vector4d> errors){
+    // Integrate c_i_dot
+    double decay_rate = 1;
+    for(int i=0; i<articleValues->getM(); i++){
+        c[i] = c[i]*decay_rate + c_dot_i(errors[i]) * timeStep;
+    }
 }
 
 std::vector<Eigen::Vector4d> MultiAgentControl::getErrors(std::vector<Eigen::Vector4d> x, std::vector<Eigen::Vector4d> h, double t) // Return error array
