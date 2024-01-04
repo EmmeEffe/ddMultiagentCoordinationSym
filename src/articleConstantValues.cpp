@@ -208,6 +208,7 @@ void articleConstantValues::addTargetsToPositionList(std::vector<Eigen::Vector4d
 Eigen::Vector4d articleConstantValues::getTargetPosition(int index, double time)
 {
     Eigen::Vector4d target_pos; // p_x, v_x, p_y, v_y
+    time = std::min(100.0, time); // Max time 100 sec
     if(time<60){ // All targets grouped
         // all target close to (40,40)
         switch(index){

@@ -18,10 +18,12 @@ public:
 
     RCLCPP_WARN(this->get_logger(), "Starting MultiAgentControlNode:");
 
-    this->declare_parameter("num_robots", 12); // Number of robots
+    this->declare_parameter("num_robots", 12); // Number of robots    
+    this->declare_parameter("publish_rate", 0.01); // Number of robots
 
     // Get the parameters
     this->get_parameter("num_robots", num_robots);
+    this->get_parameter("publish_rate", timeStep);
 
   // Add Subscribers to target_pos and odom, pubishers to cmd_acc
   odom_subscribers.resize(num_robots);
@@ -136,7 +138,7 @@ private:
   bool doneOnce = false;
 
   double currentTime = 0;
-  double timeStep = 0.01;
+  double timeStep;
 };
 
 int main(int argc, char **argv) {

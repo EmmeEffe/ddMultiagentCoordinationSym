@@ -14,7 +14,7 @@ secondOrderDynamics::~secondOrderDynamics()
 }
 
 void secondOrderDynamics::initializeRobotPosition(int index){
-    double r = 15;
+    double r = 25;
     double omega = 0.1;
 
     state.pos.x = r * std::sin(2*M_PI*index/12);
@@ -25,6 +25,10 @@ void secondOrderDynamics::initializeRobotPosition(int index){
 
 int secondOrderDynamics::tick(Point2d acc) // evolve the state
 {
+    double limit = 1/timeInt * 100.0;
+    if(state.count_tick == (int)limit){ // Stop at 100 seconds
+        return state.count_tick;
+    }
     //Update Pos
     State oldState = state;
     state.pos.x = state.pos.x + state.vel.x * timeInt; // s(t1) = s(t0) + v(t0) * DELTA t
